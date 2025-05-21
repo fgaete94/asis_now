@@ -1,0 +1,7 @@
+{
+  "name": "asisnow",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
