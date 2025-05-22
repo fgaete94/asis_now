@@ -4,4 +4,5 @@ export interface Asistencia {
     entrada?: Date | null;
     salida?: Date | null;
     estacion?: string;
+    linea?: string;
   }

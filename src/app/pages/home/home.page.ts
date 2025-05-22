@@ -45,10 +45,16 @@ export class HomePage {
       // Manejar usuario no logeado
       return;
     }
+    // Busca la estación seleccionada en el array para obtener también la línea
+    const estacionSeleccionada = this.estacionesInfo.find(est => est.nombre === this.estacion);
+    const linea = estacionSeleccionada ? estacionSeleccionada.linea : null;
+
     const asistencia: Asistencia = {
       usuario: userData.user,
       entrada: new Date(),
-      salida: null
+      salida: null,
+      estacion: this.estacion,
+      linea: linea
     };
     this.asistenciaService.registrarAsistencia(asistencia).subscribe({
       next: () => {
@@ -66,10 +72,16 @@ export class HomePage {
       // Manejar usuario no logeado
       return;
     }
+    // Busca la estación seleccionada en el array para obtener también la línea
+    const estacionSeleccionada = this.estacionesInfo.find(est => est.nombre === this.estacion);
+    const linea = estacionSeleccionada ? estacionSeleccionada.linea : null;
+
     const asistencia: Asistencia = {
       usuario: userData.user,
       entrada: null,
-      salida: new Date()
+      salida: new Date(),
+      estacion: this.estacion,
+      linea: linea
     };
     this.asistenciaService.registrarAsistencia(asistencia).subscribe({
       next: () => {
@@ -96,7 +108,8 @@ export class HomePage {
               )
             )
             .map((f: any) => ({
-              nombre: f.attributes.nombre
+              nombre: f.attributes.nombre,
+              linea: f.attributes.linea
             }));
         } else {
           this.estacionesInfo = [];
