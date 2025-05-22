@@ -3,5 +3,5 @@ export interface Asistencia {
     usuario: string;
     entrada?: Date | null;
     salida?: Date | null;
-    //estacion: string;
+    estacion?: string;
   }

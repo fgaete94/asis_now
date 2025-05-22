@@ -3,6 +3,15 @@
 
 <ion-content [fullscreen]="true">
   <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70vh;">
+    <!-- Lista desplegable de estaciones -->
+    <ion-item style="width: 300px; margin-bottom: 30px;">
+      <ion-label>Estación</ion-label>
+      <ion-select [(ngModel)]="estacion" interface="popover" placeholder="Selecciona una estación">
+        <ion-select-option *ngFor="let est of estacionesInfo" [value]="est.nombre">
+          {{ est.nombre }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
     <ion-button 
       color="primary" 
       shape="round" 
