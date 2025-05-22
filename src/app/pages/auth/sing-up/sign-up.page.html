@@ -1,0 +1,101 @@
+<app-header title="Registrarse"></app-header>
+
+<ion-content [fullscreen]="true">
+  <div class="d-flex-center">
+    <ion-card color="light">
+      <ion-card-header class="logo-container">
+        
+      </ion-card-header>
+      <ion-card-content>
+        <!-- Mensaje de error -->
+        <ion-text *ngIf="errorMessage" color="danger">
+          <p>{{ errorMessage }}</p>
+        </ion-text>
+
+        <ion-list>
+          <!-- Nombre -->
+          <ion-item color="light">
+            <ion-input 
+              labelPlacement="floating" 
+              [(ngModel)]="nombre" 
+              placeholder="Ingrese su nombre">
+              <div slot="label">Nombre <ion-text color="danger" *ngIf="errorFields['nombre']">{{ errorFields['nombre'] }}</ion-text></div>
+            </ion-input>
+          </ion-item>
+
+          <!-- Apellido Paterno -->
+          <ion-item color="light">
+            <ion-input 
+              labelPlacement="floating" 
+              [(ngModel)]="apellido_paterno" 
+              placeholder="Ingrese su Apellido Paterno">
+              <div slot="label">Apellido Paterno <ion-text color="danger" *ngIf="errorFields['apellido_paterno']">{{ errorFields['apellido_paterno'] }}</ion-text></div>
+            </ion-input>
+          </ion-item>
+          <!-- Apellido Materno -->
+          <ion-item color="light">
+            <ion-input 
+              labelPlacement="floating" 
+              [(ngModel)]="apellido_materno" 
+              placeholder="Ingrese su Apellido Materno">
+              <div slot="label">Apellido Materno <ion-text color="danger" *ngIf="errorFields['apellido_materno']"></ion-text></div>
+            </ion-input>
+          </ion-item>
+
+          <!-- Nombre de Usuario -->
+          <ion-item color="light">
+            <ion-input 
+              labelPlacement="floating" 
+              [(ngModel)]="user" 
+              placeholder="Ingrese su nombre de usuario">
+              <div slot="label">Nombre de Usuario <ion-text color="danger" *ngIf="errorFields['user']">{{ errorFields['user'] }}</ion-text></div>
+            </ion-input>
+          </ion-item>
+
+          <!-- Contraseña -->
+          <ion-item color="light">
+            <ion-input 
+              labelPlacement="floating" 
+              [(ngModel)]="password" 
+              type="password" 
+              placeholder="Ingrese su contraseña">
+              <div slot="label">Contraseña <ion-text color="danger" *ngIf="errorFields['password']">{{ errorFields['password'] }}</ion-text></div>
+            </ion-input>
+          </ion-item>
+
+          <!-- Confirmar Contraseña -->
+          <ion-item color="light">
+            <ion-input 
+              labelPlacement="floating" 
+              [(ngModel)]="confirmPassword" 
+              type="password" 
+              placeholder="Confirme su contraseña">
+              <div slot="label">Confirme Contraseña <ion-text color="danger" *ngIf="errorFields['confirmPassword']">{{ errorFields['confirmPassword'] }}</ion-text></div>
+            </ion-input>
+          </ion-item>
+        </ion-list>
+
+        <!-- Botones -->
+        <div class="button-container">
+          <ion-button 
+            expand="block" 
+            color="primary" 
+            (click)="signUp()" 
+            class="signup-button">
+            <ion-icon name="document-text-outline"></ion-icon>
+            Registrarme
+          </ion-button>
+
+          <ion-button 
+            expand="block" 
+            color="danger" 
+            (click)="goToLogin()" 
+            class="signup-button">
+            <ion-icon name="arrow-back-outline"></ion-icon>
+            Volver
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>
