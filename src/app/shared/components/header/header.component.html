@@ -1,3 +1,14 @@
-<p>
-  header works!
-</p>
+<ion-header>
+  <ion-toolbar>
+    
+
+    <ion-buttons slot="primary" color="primary">
+      <ion-button fill="solid" class="singOut" *ngIf="isHomePage()" (click)="logout()" >
+        Cerrar sesión
+      </ion-button>
+    </ion-buttons>
+    <ion-title><strong>{{ title }}</strong>
+      <div class="admin">Asis-Now</div>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
