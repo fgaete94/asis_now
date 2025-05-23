@@ -15,12 +15,17 @@ const routes: Routes = [
     loadChildren: () => import('./pages/auth/sing-up/sign-up.module').then(m => m.SignUpPageModule)
   
   },
+    {
+    path: 'reg-entrada',
+    loadChildren: () => import('./pages/reg_entrada/reg-entrada/reg-entrada.module').then( m => m.RegEntradaPageModule)
+  },
 
   {
     path: '',
     redirectTo: 'auth',
     pathMatch: 'full'
   },
+
  
 
 
