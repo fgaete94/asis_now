@@ -22,11 +22,12 @@ L.Icon.Default.mergeOptions({
   standalone: false,
 })
 export class HomePage {
-
   estacionesInfo: any[] = [];
   estacion: string = '';
 
   private map: L.Map | undefined;
+  private lat: number | null = null; // NUEVO
+  private lng: number | null = null; // NUEVO
 
   constructor(
     private readonly router: Router,
@@ -54,19 +55,23 @@ export class HomePage {
   async registrarEntrada() {
     const userData = await this.authService.getDecryptedUserData();
     if (!userData || !userData.user) {
-      // Manejar usuario no logeado
       return;
     }
-    // Busca la estación seleccionada en el array para obtener también la línea
     const estacionSeleccionada = this.estacionesInfo.find(est => est.nombre === this.estacion);
     const linea = estacionSeleccionada ? estacionSeleccionada.linea : null;
+
+    // Genera la URL compatible con OSM
+    const osmUrl = (this.lat && this.lng)
+      ? `https://www.openstreetmap.org/?mlat=${this.lat}&mlon=${this.lng}#map=16/${this.lat}/${this.lng}`
+      : undefined;
 
     const asistencia: Asistencia = {
       usuario: userData.user,
       entrada: new Date(),
       salida: null,
       estacion: this.estacion,
-      linea: linea
+      linea: linea,
+      ubicacionUrl: osmUrl // NUEVO CAMPO
     };
     this.asistenciaService.registrarAsistencia(asistencia).subscribe({
       next: () => {
@@ -81,19 +86,23 @@ export class HomePage {
   async registrarSalida() {
     const userData = await this.authService.getDecryptedUserData();
     if (!userData || !userData.user) {
-      // Manejar usuario no logeado
       return;
     }
-    // Busca la estación seleccionada en el array para obtener también la línea
     const estacionSeleccionada = this.estacionesInfo.find(est => est.nombre === this.estacion);
     const linea = estacionSeleccionada ? estacionSeleccionada.linea : null;
+
+    // Genera la URL compatible con OSM
+    const osmUrl = (this.lat && this.lng)
+      ? `https://www.openstreetmap.org/?mlat=${this.lat}&mlon=${this.lng}#map=16/${this.lat}/${this.lng}`
+      : undefined;
 
     const asistencia: Asistencia = {
       usuario: userData.user,
       entrada: null,
       salida: new Date(),
       estacion: this.estacion,
-      linea: linea
+      linea: linea,
+      ubicacionUrl: osmUrl // NUEVO CAMPO
     };
     this.asistenciaService.registrarAsistencia(asistencia).subscribe({
       next: () => {
@@ -140,18 +149,17 @@ export class HomePage {
     }
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
+        this.lat = position.coords.latitude;   // GUARDAR LAT
+        this.lng = position.coords.longitude;  // GUARDAR LNG
 
-        // Inicializa el mapa solo una vez
         if (!this.map) {
-          this.map = L.map('mini-map').setView([lat, lng], 16);
+          this.map = L.map('mini-map').setView([this.lat, this.lng], 16);
 
           L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
           }).addTo(this.map);
 
-          L.marker([lat, lng]).addTo(this.map)
+          L.marker([this.lat, this.lng]).addTo(this.map)
             .bindPopup('Tu ubicación actual')
             .openPopup();
         }

@@ -5,5 +5,5 @@ export interface Asistencia {
     salida?: Date | null;
     estacion?: string;
     linea?: string;
-    ubicacion?: string;
+    ubicacionUrl?: string;
   }
