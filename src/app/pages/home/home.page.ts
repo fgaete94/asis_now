@@ -6,6 +6,7 @@ import { Asistencia } from 'src/app/models/asistencia';
 import { ToastController } from '@ionic/angular';
 import { EstacionesServiceService } from 'src/app/services/estaciones/estaciones-service.service'; // Importa el servicio
 import * as L from 'leaflet';
+import { Geolocation } from '@capacitor/geolocation';
 
 // Corrige la ruta de los iconos de Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -54,16 +55,18 @@ export class HomePage {
 
   async registrarEntrada() {
     const userData = await this.authService.getDecryptedUserData();
-    if (!userData || !userData.user) {
-      return;
-    }
+    if (!userData || !userData.user) return;
+
+    // Obtén la ubicación justo antes de enviar
+    const coordinates = await Geolocation.getCurrentPosition();
+    const lat = coordinates.coords.latitude;
+    const lng = coordinates.coords.longitude;
+    const osmUrl = lat && lng
+      ? `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=16/${lat}/${lng}`
+      : undefined;
+
     const estacionSeleccionada = this.estacionesInfo.find(est => est.nombre === this.estacion);
     const linea = estacionSeleccionada ? estacionSeleccionada.linea : null;
-
-    // Genera la URL compatible con OSM
-    const osmUrl = (this.lat && this.lng)
-      ? `https://www.openstreetmap.org/?mlat=${this.lat}&mlon=${this.lng}#map=16/${this.lat}/${this.lng}`
-      : undefined;
 
     const asistencia: Asistencia = {
       usuario: userData.user,
@@ -71,15 +74,12 @@ export class HomePage {
       salida: null,
       estacion: this.estacion,
       linea: linea,
-      ubicacionUrl: osmUrl // NUEVO CAMPO
+      ubicacionUrl: osmUrl
     };
+
     this.asistenciaService.registrarAsistencia(asistencia).subscribe({
-      next: () => {
-        this.mostrarToast('Entrada registrada');
-      },
-      error: (err) => {
-        // Manejar error
-      }
+      next: () => this.mostrarToast('Entrada registrada'),
+      error: (err) => {/* manejar error */}
     });
   }
 
@@ -88,13 +88,17 @@ export class HomePage {
     if (!userData || !userData.user) {
       return;
     }
+
+    // Obtén la ubicación justo antes de enviar
+    const coordinates = await Geolocation.getCurrentPosition();
+    const lat = coordinates.coords.latitude;
+    const lng = coordinates.coords.longitude;
+    const osmUrl = lat && lng
+      ? `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=16/${lat}/${lng}`
+      : undefined;
+
     const estacionSeleccionada = this.estacionesInfo.find(est => est.nombre === this.estacion);
     const linea = estacionSeleccionada ? estacionSeleccionada.linea : null;
-
-    // Genera la URL compatible con OSM
-    const osmUrl = (this.lat && this.lng)
-      ? `https://www.openstreetmap.org/?mlat=${this.lat}&mlon=${this.lng}#map=16/${this.lat}/${this.lng}`
-      : undefined;
 
     const asistencia: Asistencia = {
       usuario: userData.user,
@@ -102,8 +106,9 @@ export class HomePage {
       salida: new Date(),
       estacion: this.estacion,
       linea: linea,
-      ubicacionUrl: osmUrl // NUEVO CAMPO
+      ubicacionUrl: osmUrl
     };
+
     this.asistenciaService.registrarAsistencia(asistencia).subscribe({
       next: () => {
         this.mostrarToast('Salida registrada');
@@ -144,29 +149,20 @@ export class HomePage {
   }
 
   async initMapWithLocation() {
-    if (!navigator.geolocation) {
-      return;
+    const coordinates = await Geolocation.getCurrentPosition();
+    this.lat = coordinates.coords.latitude;
+    this.lng = coordinates.coords.longitude;
+
+    if (!this.map) {
+      this.map = L.map('mini-map').setView([this.lat, this.lng], 16);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(this.map);
+
+      L.marker([this.lat, this.lng]).addTo(this.map)
+        .bindPopup('Tu ubicación actual')
+        .openPopup();
     }
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        this.lat = position.coords.latitude;   // GUARDAR LAT
-        this.lng = position.coords.longitude;  // GUARDAR LNG
-
-        if (!this.map) {
-          this.map = L.map('mini-map').setView([this.lat, this.lng], 16);
-
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-          }).addTo(this.map);
-
-          L.marker([this.lat, this.lng]).addTo(this.map)
-            .bindPopup('Tu ubicación actual')
-            .openPopup();
-        }
-      },
-      (error) => {
-        // Manejar error de geolocalización
-      }
-    );
   }
 }
