@@ -4,7 +4,11 @@
 <ion-content [fullscreen]="true">
   <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 70vh;">
     <!-- Lista desplegable de estaciones -->
-    <ion-item style="width: 300px; margin-bottom: 30px;">
+     <div 
+      id="mini-map" 
+      style="height: 40px; width: 40px; margin-bottom: 24px; margin-top: 20px; display: flex; align-items: center; justify-content: center;">
+    </div>
+     <ion-item style="width: 300px; margin-bottom: 40px;">
       <ion-label>Estación</ion-label>
       <ion-select [(ngModel)]="estacion" interface="popover" placeholder="Selecciona una estación">
         <ion-select-option *ngFor="let est of estacionesInfo" [value]="est.nombre">
@@ -27,4 +31,5 @@
       Salida
     </ion-button>
   </div>
+  
 </ion-content>

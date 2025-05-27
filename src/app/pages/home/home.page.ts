@@ -5,6 +5,15 @@ import { AuthServiceService } from 'src/app/services/auth-service/auth-service.s
 import { Asistencia } from 'src/app/models/asistencia';
 import { ToastController } from '@ionic/angular';
 import { EstacionesServiceService } from 'src/app/services/estaciones/estaciones-service.service'; // Importa el servicio
+import * as L from 'leaflet';
+
+// Corrige la ruta de los iconos de Leaflet
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'assets/leaflet/marker-icon-2x.png',
+  iconUrl: 'assets/leaflet/marker-icon.png',
+  shadowUrl: 'assets/leaflet/marker-shadow.png',
+});
 
 @Component({
   selector: 'app-home',
@@ -17,6 +26,8 @@ export class HomePage {
   estacionesInfo: any[] = [];
   estacion: string = '';
 
+  private map: L.Map | undefined;
+
   constructor(
     private readonly router: Router,
     private readonly asistenciaService: AsistenciaService,
@@ -26,7 +37,8 @@ export class HomePage {
   ) {}
 
   ngOnInit() {
-    this.obtenerEstacionesInfo(); // Llama a la función al iniciar el componente
+    this.obtenerEstacionesInfo();
+    this.initMapWithLocation();
   }
 
   async mostrarToast(mensaje: string) {
@@ -120,5 +132,33 @@ export class HomePage {
         this.estacionesInfo = [];
       }
     });
+  }
+
+  async initMapWithLocation() {
+    if (!navigator.geolocation) {
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        // Inicializa el mapa solo una vez
+        if (!this.map) {
+          this.map = L.map('mini-map').setView([lat, lng], 16);
+
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+          }).addTo(this.map);
+
+          L.marker([lat, lng]).addTo(this.map)
+            .bindPopup('Tu ubicación actual')
+            .openPopup();
+        }
+      },
+      (error) => {
+        // Manejar error de geolocalización
+      }
+    );
   }
 }
