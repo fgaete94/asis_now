@@ -21,10 +21,18 @@ const routes: Routes = [
   },
 
   {
+    path: 'cambiar-rol',
+    loadChildren: () => import('./pages/cambiar-rol/cambiar-rol.module').then( m => m.CambiarRolPageModule)
+  },
+  
+
+  {
     path: '',
     redirectTo: 'auth',
     pathMatch: 'full'
   },
+
+
 
  
 

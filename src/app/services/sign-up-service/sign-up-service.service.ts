@@ -1,18 +1,16 @@
 import { Injectable } from '@angular/core';
-import { ApiConfigService } from '../api-config/api-config.service';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { HttpResponse } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SignUpService {
-  private path = 'usuario'; // <-- Cambia a 'usuario' para usar el endpoint Flask
+  private apiUrl = 'http://localhost:5000/api/usuario'; // <-- Debe ser tu API Flask
 
-  constructor(private apiService: ApiConfigService) {}
+  constructor(private http: HttpClient) {}
 
   registrarUsuario(userData: any): Observable<HttpResponse<any>> {
-    // Ahora consulta a tu API Flask, no a Supabase directo
-    return this.apiService.post<any>(this.path, userData);
+    return this.http.post<any>(this.apiUrl, userData, { observe: 'response' });
   }
 }

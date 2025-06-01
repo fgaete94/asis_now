@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { AsistenciaService } from 'src/app/services/asistencia/asistencia.service';
 import { AuthServiceService } from 'src/app/services/auth-service/auth-service.service';
 import { Asistencia } from 'src/app/models/asistencia';
-import { ToastController } from '@ionic/angular';
+import { ToastController, NavController } from '@ionic/angular';
 import { EstacionesServiceService } from 'src/app/services/estaciones/estaciones-service.service'; // Importa el servicio
 import * as L from 'leaflet';
 import { Geolocation } from '@capacitor/geolocation';
@@ -30,6 +30,7 @@ export class HomePage {
   private map: L.Map | undefined;
   private lat: number | null = null;
   private lng: number | null = null;
+  userRol: number | null = null;
 
   constructor(
     private readonly router: Router,
@@ -37,12 +38,14 @@ export class HomePage {
     private readonly authService: AuthServiceService,
     private readonly toastController: ToastController,
     private readonly estacionesService: EstacionesServiceService, // Inyecta el servicio
-    private readonly ubicacionService: UbicacionService
+    private readonly ubicacionService: UbicacionService,
+    private readonly navCtrl: NavController // <--- agrega esto
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     this.obtenerEstacionesInfo();
     this.initMapWithFlask();
+    await this.obtenerRolUsuario();
   }
 
   async mostrarToast(mensaje: string) {
@@ -167,5 +170,14 @@ export class HomePage {
     } catch (error) {
       console.error('No se pudo obtener la ubicación del usuario:', error);
     }
+  }
+
+  async obtenerRolUsuario() {
+    const userData = await this.authService.getDecryptedUserData();
+    this.userRol = userData?.user?.rol ?? null;
+  }
+
+  irACambiarRol() {
+    this.navCtrl.navigateForward('/cambiar-rol');
   }
 }

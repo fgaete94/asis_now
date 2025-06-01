@@ -69,4 +69,9 @@ export class AuthServiceService {
   obtenerTodosUsuarios(): Observable<User[]> {
     return this.http.get<User[]>(`${this.apiUrl}/usuarios`);
   }
+
+  cambiarRolUsuario(username: string, nuevoRol: number) {
+    // Suponiendo que tu API Flask tiene un endpoint PATCH o PUT para esto
+    return this.http.patch(`${this.apiUrl}/usuario/${username}/rol`, { rol: nuevoRol });
+  }
 }

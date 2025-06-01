@@ -54,10 +54,16 @@ def registrar_usuario():
             headers=supabase_headers(),
             json=user_data
         )
+        print("Supabase status:", response.status_code)
+        print("Supabase response:", response.text)
         response.raise_for_status()
+        # Si la respuesta está vacía, devuelve un mensaje de éxito
+        if not response.text.strip():
+            return jsonify({"message": "Usuario creado correctamente"}), 201
         return jsonify(response.json()), response.status_code
     except requests.exceptions.RequestException as e:
-        return jsonify({'error': str(e)}), 500
+        print("Exception:", e)
+        return jsonify({'error': str(e), 'details': response.text if 'response' in locals() else ''}), 500
 
 # Logout (dummy endpoint, ya que el logout es local en el cliente)
 @app.route('/api/logout', methods=['POST'])
@@ -116,6 +122,24 @@ def recibir_ubicacion():
         return jsonify({"lat": lat, "lng": lng}), 200
     else:
         return jsonify({"error": "Datos de ubicación incompletos"}), 400
+
+@app.route('/api/usuario/<username>/rol', methods=['PATCH'])
+def cambiar_rol_usuario(username):
+    data = request.json
+    nuevo_rol = data.get('rol')
+    if not nuevo_rol:
+        return jsonify({'error': 'Rol no proporcionado'}), 400
+    try:
+        response = requests.patch(
+            f"{API_SUPABASE}/{SUPABASE_USERS_PATH}",
+            headers=supabase_headers(),
+            params={"user": f"eq.{username}"},
+            json={"rol": nuevo_rol}
+        )
+        response.raise_for_status()
+        return jsonify({"message": "Rol actualizado"}), 200
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
