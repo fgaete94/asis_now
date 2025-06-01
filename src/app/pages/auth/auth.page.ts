@@ -64,7 +64,6 @@ export class AuthPage implements OnInit {
 
 async login(username: string, password: string) {
   try {
-    // Usar firstValueFrom para convertir el observable en una promesa
     const user = await firstValueFrom(this._authService.obtener_usuario(username));
     this.userInfo = user?.body || null;
 

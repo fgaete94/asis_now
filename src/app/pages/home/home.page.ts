@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { AsistenciaService } from 'src/app/services/asistencia/asistencia.service';
 import { AuthServiceService } from 'src/app/services/auth-service/auth-service.service';
@@ -30,7 +30,8 @@ export class HomePage {
   private map: L.Map | undefined;
   private lat: number | null = null;
   private lng: number | null = null;
-  userRol: number | null = null;
+  userRol: number = 0;
+  rolCargado: boolean = false;
 
   constructor(
     private readonly router: Router,
@@ -39,13 +40,15 @@ export class HomePage {
     private readonly toastController: ToastController,
     private readonly estacionesService: EstacionesServiceService, // Inyecta el servicio
     private readonly ubicacionService: UbicacionService,
-    private readonly navCtrl: NavController // <--- agrega esto
+    private readonly navCtrl: NavController, // <--- agrega esto
+    private readonly cdr: ChangeDetectorRef
   ) {}
 
   async ngOnInit() {
     this.obtenerEstacionesInfo();
     this.initMapWithFlask();
     await this.obtenerRolUsuario();
+    console.log('Rol actual en home:', this.userRol, typeof this.userRol);
   }
 
   async mostrarToast(mensaje: string) {
@@ -174,7 +177,9 @@ export class HomePage {
 
   async obtenerRolUsuario() {
     const userData = await this.authService.getDecryptedUserData();
-    this.userRol = userData?.user?.rol ?? null;
+    // userData debe tener la forma { ...User, expiration }
+    this.userRol = Number(userData?.rol ?? 0); // <-- NO userData.user.rol
+    this.rolCargado = true;
   }
 
   irACambiarRol() {
