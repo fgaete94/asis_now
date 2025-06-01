@@ -106,5 +106,16 @@ def get_estaciones():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/ubicacion', methods=['POST'])
+def recibir_ubicacion():
+    data = request.json
+    lat = data.get('lat')
+    lng = data.get('lng')
+    if lat is not None and lng is not None:
+        # Aquí podrías guardar la ubicación o hacer lógica adicional
+        return jsonify({"lat": lat, "lng": lng}), 200
+    else:
+        return jsonify({"error": "Datos de ubicación incompletos"}), 400
+
 if __name__ == "__main__":
     app.run(debug=True)

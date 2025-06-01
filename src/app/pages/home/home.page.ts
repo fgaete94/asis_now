@@ -7,6 +7,7 @@ import { ToastController } from '@ionic/angular';
 import { EstacionesServiceService } from 'src/app/services/estaciones/estaciones-service.service'; // Importa el servicio
 import * as L from 'leaflet';
 import { Geolocation } from '@capacitor/geolocation';
+import { UbicacionService } from 'src/app/services/ubicacion-service/ubicacion-service.service';
 
 // Corrige la ruta de los iconos de Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -27,20 +28,21 @@ export class HomePage {
   estacion: string = '';
 
   private map: L.Map | undefined;
-  private lat: number | null = null; // NUEVO
-  private lng: number | null = null; // NUEVO
+  private lat: number | null = null;
+  private lng: number | null = null;
 
   constructor(
     private readonly router: Router,
     private readonly asistenciaService: AsistenciaService,
     private readonly authService: AuthServiceService,
     private readonly toastController: ToastController,
-    private readonly estacionesService: EstacionesServiceService // Inyecta el servicio
+    private readonly estacionesService: EstacionesServiceService, // Inyecta el servicio
+    private readonly ubicacionService: UbicacionService
   ) {}
 
   ngOnInit() {
     this.obtenerEstacionesInfo();
-    this.initMapWithLocation();
+    this.initMapWithFlask();
   }
 
   async mostrarToast(mensaje: string) {
@@ -132,21 +134,38 @@ export class HomePage {
     });
   }
 
-  async initMapWithLocation() {
-    const coordinates = await Geolocation.getCurrentPosition();
-    this.lat = coordinates.coords.latitude;
-    this.lng = coordinates.coords.longitude;
+  async initMapWithFlask() {
+    try {
+      const coordinates = await Geolocation.getCurrentPosition();
+      const lat = coordinates.coords.latitude;
+      const lng = coordinates.coords.longitude;
 
-    if (!this.map) {
-      this.map = L.map('mini-map').setView([this.lat, this.lng], 16);
+      // Envía la ubicación a Flask y usa la respuesta para centrar el mapa
+      this.ubicacionService.enviarUbicacion(lat, lng).subscribe({
+        next: (ubicacion: { lat: number, lng: number }) => {
+          this.lat = ubicacion.lat;
+          this.lng = ubicacion.lng;
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-      }).addTo(this.map);
+          if (!this.map) {
+            this.map = L.map('mini-map').setView([this.lat!, this.lng!], 16);
 
-      L.marker([this.lat, this.lng]).addTo(this.map)
-        .bindPopup('Tu ubicación actual')
-        .openPopup();
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              attribution: '© OpenStreetMap contributors'
+            }).addTo(this.map);
+
+            L.marker([this.lat!, this.lng!]).addTo(this.map)
+              .bindPopup('Tu ubicación actual')
+              .openPopup();
+          } else {
+            this.map.setView([this.lat!, this.lng!], 16);
+          }
+        },
+        error: (err: any) => {
+          console.error('Error al consultar ubicación en Flask:', err);
+        }
+      });
+    } catch (error) {
+      console.error('No se pudo obtener la ubicación del usuario:', error);
     }
   }
 }
