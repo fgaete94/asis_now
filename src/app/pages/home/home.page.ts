@@ -122,24 +122,8 @@ export class HomePage {
   obtenerEstacionesInfo() {
     this.estacionesService.getBaseUrlInfo().subscribe({
       next: (data) => {
-        if (data && Array.isArray(data.features)) {
-          // Filtra solo las estaciones con estacion: "EXISTENTE" y línea 2, 3 o 6
-          this.estacionesInfo = data.features
-            .filter((f: any) =>
-              f.attributes.estacion === "EXISTENTE" &&
-              (
-                f.attributes.linea === "Linea 2" ||
-                f.attributes.linea === "Linea 3" ||
-                f.attributes.linea === "Linea 6"
-              )
-            )
-            .map((f: any) => ({
-              nombre: f.attributes.nombre,
-              linea: f.attributes.linea
-            }));
-        } else {
-          this.estacionesInfo = [];
-        }
+        // El backend ya entrega las estaciones filtradas
+        this.estacionesInfo = Array.isArray(data) ? data : [];
         console.log('Estaciones cargadas:', this.estacionesInfo);
       },
       error: (err) => {

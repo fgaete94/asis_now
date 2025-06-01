@@ -7,12 +7,12 @@ import { HttpResponse } from '@angular/common/http';
   providedIn: 'root',
 })
 export class SignUpService {
-  private path = 'Usuarios'; // Tabla en Supabase
+  private path = 'usuario'; // <-- Cambia a 'usuario' para usar el endpoint Flask
 
   constructor(private apiService: ApiConfigService) {}
 
-  // Reutilizamos el método POST del api-config.service
   registrarUsuario(userData: any): Observable<HttpResponse<any>> {
+    // Ahora consulta a tu API Flask, no a Supabase directo
     return this.apiService.post<any>(this.path, userData);
   }
 }

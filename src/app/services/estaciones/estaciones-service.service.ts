@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { environment } from 'src/environments/environment';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 
@@ -8,17 +7,17 @@ import { catchError, Observable, throwError } from 'rxjs';
 })
 export class EstacionesServiceService {
 
-  baseUrl = environment.API_OUC;
+  // Cambia la baseUrl a tu API Flask
+  baseUrl = 'http://localhost:5000/api/estaciones';
 
   constructor(private http: HttpClient) { }
 
-  // Manejo de errores
   private handleError(error: HttpErrorResponse) {
     console.error('Error ocurrido:', error);
     return throwError(() => error);
   }
 
-  // Obtener información de la base URL
+  // Ahora obtiene las estaciones filtradas desde Flask
   getBaseUrlInfo(): Observable<any> {
     return this.http.get(this.baseUrl)
       .pipe(

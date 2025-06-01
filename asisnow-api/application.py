@@ -91,17 +91,20 @@ def get_estaciones():
         data = respuesta.json()
 
         if 'features' in data:
-            estaciones_filtradas = []
-            lineas_a_buscar = ["Linea 2", "Linea 3", "Linea 6"]
-            for feature in data['features']:
-                attributes = feature.get('attributes', {})
-                if 'linea' in attributes and attributes['linea'] in lineas_a_buscar:
-                    estaciones_filtradas.append(attributes)
+            estaciones_filtradas = [
+                {
+                    "nombre": f["attributes"]["nombre"],
+                    "linea": f["attributes"]["linea"]
+                }
+                for f in data["features"]
+                if f["attributes"]["estacion"] == "EXISTENTE"
+                and f["attributes"]["linea"] in ["Linea 2", "Linea 3", "Linea 6"]
+            ]
             return jsonify(estaciones_filtradas)
         else:
-            return jsonify({'error': 'Formato de respuesta de la API externa inesperado'}), 500
-    except requests.exceptions.RequestException as e:
-        return jsonify({'error': str(e)}), 500
+            return jsonify([]), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
