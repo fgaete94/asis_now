@@ -11,10 +11,10 @@ import { map } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class AuthServiceService {
-  private readonly path = 'Usuarios'; // Nombre de la tabla en Supabase
-  private readonly apiUrl = environment.API_URL; // URL base de la API
+  // Cambia la URL base a la de tu API Flask
+  private readonly apiUrl = 'http://localhost:5000/api'; // <-- Cambia esto si tu Flask está en otro host/puerto
 
-  constructor(private readonly http: HttpClient) {} // Inyectamos HttpClient
+  constructor(private readonly http: HttpClient) {}
 
   async isDateExpired(): Promise<boolean> {
     const userData = await this.getDecryptedUserData();
@@ -57,37 +57,16 @@ export class AuthServiceService {
   }
 
   obtener_usuario(username: string): Observable<HttpResponse<User | null>> {
-    const params = new HttpParams().set('select', '*');
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'apiKey': environment.API_KEY_SUPABASE,
-      'Authorization': `Bearer ${environment.API_KEY_SUPABASE}`,
-    });
-
-    return this.http.get<User[]>(`${this.apiUrl}/${this.path}`, { params, observe: 'response', headers }).pipe(
-      map((response) => {
-        console.log(response);
-        const filteredBody = response.body?.find((user) => user.user === username && user.rol != null);
-        return new HttpResponse({
-          body: filteredBody || null, // Devolvemos el usuario encontrado o null
-          headers: response.headers,
-          status: response.status,
-          statusText: response.statusText,
-        });
-      })
-    );
+    // Ahora consulta a tu API Flask
+    return this.http.get<User | null>(`${this.apiUrl}/usuario/${username}`, { observe: 'response' });
   }
 
   registrarUsuario(userData: any): Observable<HttpResponse<any>> {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'apiKey': environment.API_KEY_SUPABASE,
-      'Authorization': `Bearer ${environment.API_KEY_SUPABASE}`,
-    });
+    // Ahora consulta a tu API Flask
+    return this.http.post<any>(`${this.apiUrl}/usuario`, userData, { observe: 'response' });
+  }
 
-    return this.http.post<any>(`${this.apiUrl}/${this.path}`, userData, {
-      observe: 'response',
-      headers,
-    });
+  obtenerTodosUsuarios(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.apiUrl}/usuarios`);
   }
 }
