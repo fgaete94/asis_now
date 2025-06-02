@@ -185,4 +185,8 @@ export class HomePage {
   irACambiarRol() {
     this.navCtrl.navigateForward('/cambiar-rol');
   }
+
+  irAAsistenciaColaboradores() {
+    this.navCtrl.navigateForward('/asistencia-colaboradores');
+  }
 }

@@ -7,13 +7,15 @@ import { IonicModule } from '@ionic/angular';
 import { CambiarRolPageRoutingModule } from './cambiar-rol-routing.module';
 
 import { CambiarRolPage } from './cambiar-rol.page';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    CambiarRolPageRoutingModule
+    CambiarRolPageRoutingModule,
+    SharedModule
   ],
   declarations: [CambiarRolPage]
 })

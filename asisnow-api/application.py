@@ -142,5 +142,33 @@ def cambiar_rol_usuario(username):
     except requests.exceptions.RequestException as e:
         return jsonify({'error': str(e)}), 500
 
+# Registrar asistencia (POST)
+@app.route('/api/Asistencia', methods=['POST'])
+def registrar_asistencia():
+    data = request.json
+    asistencia = {
+        "usuario": data.get("usuario"),
+        "entrada": data.get("entrada"),
+        "salida": data.get("salida"),
+        "estacion": data.get("estacion"),
+        "linea": data.get("linea"),
+        "ubicacionUrl": data.get("ubicacionUrl")
+    }
+    try:
+        response = requests.post(
+            f"{API_SUPABASE}/Asistencia",
+            headers=supabase_headers(),
+            json=asistencia
+        )
+        print("Supabase status:", response.status_code)
+        print("Supabase response:", response.text)
+        response.raise_for_status()
+        if not response.text.strip():
+            return jsonify({"message": "Asistencia registrada correctamente"}), 201
+        return jsonify(response.json()), response.status_code
+    except requests.exceptions.RequestException as e:
+        print("Exception:", e)
+        return jsonify({'error': str(e), 'details': response.text if 'response' in locals() else ''}), 500
+
 if __name__ == "__main__":
     app.run(debug=True)
