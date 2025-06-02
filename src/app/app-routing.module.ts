@@ -24,16 +24,22 @@ const routes: Routes = [
     path: 'cambiar-rol',
     loadChildren: () => import('./pages/cambiar-rol/cambiar-rol.module').then( m => m.CambiarRolPageModule)
   },
+  {
+    path: 'reporte-asistencia',
+    loadChildren: () => import('./pages/reporte-asistencia/reporte-asistencia.module').then( m => m.ReporteAsistenciaPageModule)
+  },
+  {
+    path: 'registro-manual',
+    loadChildren: () => import('./pages/registro-manual/registro-manual.module').then( m => m.RegistroManualPageModule)
+  },
   
 
   {
     path: '',
     redirectTo: 'auth',
     pathMatch: 'full'
-  },  {
-    path: 'reporte-asistencia',
-    loadChildren: () => import('./pages/reporte-asistencia/reporte-asistencia.module').then( m => m.ReporteAsistenciaPageModule)
   },
+
 
 
 

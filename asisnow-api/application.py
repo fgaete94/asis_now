@@ -192,5 +192,29 @@ def obtener_asistencias():
         print("RESPUESTA:", getattr(e.response, 'text', 'Sin respuesta'))
         return jsonify({'error': str(e), 'details': getattr(e.response, 'text', 'Sin respuesta')}), 500
 
+@app.route('/api/Asistencia/manual', methods=['POST'])
+def registrar_asistencia_manual():
+    data = request.json
+    asistencia = {
+        "usuario": data.get("usuario"),
+        "justificado": data.get("justificado"),
+        "observacion": data.get("observacion")
+    }
+    try:
+        response = requests.post(
+            f"{API_SUPABASE}/Asistencia",
+            headers=supabase_headers(),
+            json=asistencia
+        )
+        print("Supabase status:", response.status_code)
+        print("Supabase response:", response.text)
+        response.raise_for_status()
+        if not response.text.strip():
+            return jsonify({"message": "Asistencia manual registrada correctamente"}), 201
+        return jsonify(response.json()), response.status_code
+    except requests.exceptions.RequestException as e:
+        print("Exception:", e)
+        return jsonify({'error': str(e), 'details': response.text if 'response' in locals() else ''}), 500
+
 if __name__ == "__main__":
     app.run(debug=True)

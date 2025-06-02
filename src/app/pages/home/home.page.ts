@@ -193,4 +193,8 @@ export class HomePage {
   irAReportes() {
     this.router.navigate(['/reporte-asistencia']);
   }
+
+  irARegistroManual() {
+    this.router.navigate(['/registro-manual']);
+  }
 }

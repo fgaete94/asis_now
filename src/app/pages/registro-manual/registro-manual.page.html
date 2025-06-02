@@ -1,0 +1,22 @@
+<app-header title="Rgistro Manual">
+</app-header>
+
+<ion-content [fullscreen]="true">
+  <app-header title="Registro Manual"></app-header>
+  <form (ngSubmit)="registrarManual()">
+    <ion-item>
+      <ion-label position="floating">Usuario</ion-label>
+      <ion-select [(ngModel)]="usuarioSeleccionado" name="usuarioSeleccionado" required>
+        <ion-select-option *ngFor="let u of usuarios" [value]="u.user">{{ u.user }}</ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">Observación</ion-label>
+      <ion-textarea [(ngModel)]="observacion" name="observacion" required></ion-textarea>
+    </ion-item>
+    <ion-button expand="block" type="submit" [disabled]="!usuarioSeleccionado || !observacion">
+      Registrar Asistencia Manual
+    </ion-button>
+  </form>
+  <ion-toast *ngIf="mensaje" [message]="mensaje" duration="2000"></ion-toast>
+</ion-content>

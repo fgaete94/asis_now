@@ -6,4 +6,6 @@ export interface Asistencia {
     estacion?: string;
     linea?: string;
     ubicacionUrl?: string;
+    justificado?: Date | null;
+    observacion?: string;
   }
