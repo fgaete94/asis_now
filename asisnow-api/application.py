@@ -197,9 +197,15 @@ def registrar_asistencia_manual():
     data = request.json
     asistencia = {
         "usuario": data.get("usuario"),
-        "justificado": data.get("justificado"),
         "observacion": data.get("observacion")
     }
+    # Si viene 'justificado', es ausencia
+    if data.get("justificado"):
+        asistencia["justificado"] = data.get("justificado")
+    # Si viene 'entrada', es asistencia
+    if data.get("entrada"):
+        asistencia["entrada"] = data.get("entrada")
+        asistencia["estacion"] = data.get("estacion")
     try:
         response = requests.post(
             f"{API_SUPABASE}/Asistencia",

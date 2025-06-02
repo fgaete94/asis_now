@@ -12,6 +12,9 @@ import { Router } from '@angular/router';
 export class RegistroManualPage implements OnInit {
   usuarios: any[] = [];
   usuarioSeleccionado: string = '';
+  tipoRegistro: string = '';
+  estacionSeleccionada: string = '';
+  estaciones: string[] = [];
   observacion: string = '';
   mensaje: string = '';
 
@@ -25,15 +28,26 @@ export class RegistroManualPage implements OnInit {
     this.http.get<any[]>('http://localhost:5000/api/usuarios').subscribe(data => {
       this.usuarios = data;
     });
+    // Cargar estaciones (ajusta la URL según tu API)
+    this.http.get<any[]>('http://localhost:5000/api/estaciones').subscribe(data => {
+      this.estaciones = data.map(e => e.nombre); // Ajusta según tu estructura
+    });
   }
 
   registrarManual() {
     const now = new Date();
-    const asistencia = {
+    let asistencia: any = {
       usuario: this.usuarioSeleccionado,
-      justificado: now.toISOString(),
       observacion: this.observacion
     };
+
+    if (this.tipoRegistro === 'ausencia') {
+      asistencia.justificado = now.toISOString();
+    } else if (this.tipoRegistro === 'asistencia') {
+      asistencia.entrada = now.toISOString();
+      asistencia.estacion = this.estacionSeleccionada;
+    }
+
     this.http.post('http://localhost:5000/api/Asistencia/manual', asistencia)
       .subscribe({
         next: async () => {
