@@ -40,6 +40,15 @@
       Cambiar Rol
     </ion-button>
 
+    <ion-button 
+      *ngIf="rolCargado && (userRol == 2 || userRol == 3)"
+      color="tertiary"
+      shape="round"
+      style="width: 200px; height: 30px; font-weight: bold; font-size: 1.2rem; margin-bottom: 10px;"
+      (click)="irAReportes()">
+      Ver Reporte de Entradas
+    </ion-button>
+
   </div>
   
 </ion-content>

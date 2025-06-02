@@ -30,7 +30,11 @@ const routes: Routes = [
     path: '',
     redirectTo: 'auth',
     pathMatch: 'full'
+  },  {
+    path: 'reporte-asistencia',
+    loadChildren: () => import('./pages/reporte-asistencia/reporte-asistencia.module').then( m => m.ReporteAsistenciaPageModule)
   },
+
 
 
 

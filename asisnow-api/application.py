@@ -170,5 +170,29 @@ def registrar_asistencia():
         print("Exception:", e)
         return jsonify({'error': str(e), 'details': response.text if 'response' in locals() else ''}), 500
 
+@app.route('/api/Asistencia', methods=['GET'])
+def obtener_asistencias():
+    fecha = request.args.get('fecha')
+    params = {"select": "*"}
+    if fecha:
+        fecha_solo = fecha[:10]
+        params["entrada"] = f"gte.{fecha_solo}T00:00:00"
+        params["entrada2"] = f"lt.{fecha_solo}T23:59:59"
+    try:
+        # Ajusta la query string para usar AND en Supabase/PostgREST
+        url = f"{API_SUPABASE}/Asistencia?select=*"
+        if fecha:
+            url += f"&entrada=gte.{fecha_solo}T00:00:00&entrada=lt.{fecha_solo}T23:59:59"
+        response = requests.get(
+            url,
+            headers=supabase_headers()
+        )
+        response.raise_for_status()
+        return jsonify(response.json()), 200
+    except requests.exceptions.RequestException as e:
+        print("ERROR EN SUPABASE:", e)
+        print("RESPUESTA:", getattr(e.response, 'text', 'Sin respuesta'))
+        return jsonify({'error': str(e), 'details': getattr(e.response, 'text', 'Sin respuesta')}), 500
+
 if __name__ == "__main__":
     app.run(debug=True)

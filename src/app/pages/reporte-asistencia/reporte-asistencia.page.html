@@ -1,0 +1,32 @@
+<app-header title="Registro Asistencia">
+</app-header>
+
+<ion-content>
+  <ion-item>
+    <ion-label position="floating">Fecha</ion-label>
+    <ion-datetime display-format="YYYY-MM-DD" [(ngModel)]="fecha"></ion-datetime>
+  </ion-item>
+  <ion-button expand="block" (click)="buscarPorFecha()">Buscar</ion-button>
+
+  <ion-spinner *ngIf="cargando"></ion-spinner>
+
+  <table *ngIf="asistencias.length > 0" class="ion-margin">
+    <thead>
+      <tr>
+        <th>Usuario</th>
+        <th>Entrada</th>
+        <th>Estación</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let a of asistencias">
+        <td>{{ a.usuario }}</td>
+        <td>{{ a.entrada }}</td>
+        <td>{{ a.estacion }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <div *ngIf="!cargando && asistencias.length === 0">
+    No hay registros para la fecha seleccionada.
+  </div>
+</ion-content>

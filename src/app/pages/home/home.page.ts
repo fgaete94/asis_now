@@ -189,4 +189,8 @@ export class HomePage {
   irAAsistenciaColaboradores() {
     this.navCtrl.navigateForward('/asistencia-colaboradores');
   }
+
+  irAReportes() {
+    this.router.navigate(['/reporte-asistencia']);
+  }
 }
