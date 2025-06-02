@@ -6,6 +6,15 @@
     <ion-label position="floating">Fecha</ion-label>
     <ion-datetime display-format="YYYY-MM-DD" [(ngModel)]="fecha"></ion-datetime>
   </ion-item>
+
+  <ion-item>
+    <ion-label position="floating">Estación (opcional)</ion-label>
+    <ion-select [(ngModel)]="estacionFiltro">
+      <ion-select-option value="">Todas</ion-select-option>
+      <ion-select-option *ngFor="let est of estaciones" [value]="est">{{ est }}</ion-select-option>
+    </ion-select>
+  </ion-item>
+
   <ion-button expand="block" (click)="buscarPorFecha()">Buscar</ion-button>
 
   <ion-spinner *ngIf="cargando"></ion-spinner>
@@ -27,6 +36,6 @@
     </tbody>
   </table>
   <div *ngIf="!cargando && asistencias.length === 0">
-    No hay registros para la fecha seleccionada.
+    No hay registros para la fecha y estación seleccionada.
   </div>
 </ion-content>

@@ -9,7 +9,9 @@ import { HttpClient } from '@angular/common/http';
 })
 export class ReporteAsistenciaPage implements OnInit {
   fecha: string = '';
+  estacionFiltro: string = '';
   asistencias: any[] = [];
+  estaciones: string[] = [];
   cargando = false;
 
   constructor(private http: HttpClient) { }
@@ -21,10 +23,16 @@ export class ReporteAsistenciaPage implements OnInit {
     this.cargando = true;
     // Extrae solo la fecha (YYYY-MM-DD)
     const fechaSolo = this.fecha.substring(0, 10);
-    this.http.get<any[]>(`http://localhost:5000/api/Asistencia?fecha=${fechaSolo}`)
+    let url = `http://localhost:5000/api/Asistencia?fecha=${fechaSolo}`;
+    if (this.estacionFiltro) {
+      url += `&estacion=${encodeURIComponent(this.estacionFiltro)}`;
+    }
+    this.http.get<any[]>(url)
       .subscribe({
         next: (data) => {
           this.asistencias = data;
+          // Actualiza el listado de estaciones únicas para el filtro
+          this.estaciones = Array.from(new Set(data.map(a => a.estacion))).sort();
           this.cargando = false;
         },
         error: () => {

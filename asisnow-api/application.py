@@ -173,16 +173,14 @@ def registrar_asistencia():
 @app.route('/api/Asistencia', methods=['GET'])
 def obtener_asistencias():
     fecha = request.args.get('fecha')
-    params = {"select": "*"}
+    estacion = request.args.get('estacion')
+    url = f"{API_SUPABASE}/Asistencia?select=*"
     if fecha:
         fecha_solo = fecha[:10]
-        params["entrada"] = f"gte.{fecha_solo}T00:00:00"
-        params["entrada2"] = f"lt.{fecha_solo}T23:59:59"
+        url += f"&entrada=gte.{fecha_solo}T00:00:00&entrada=lt.{fecha_solo}T23:59:59"
+    if estacion:
+        url += f"&estacion=eq.{estacion}"
     try:
-        # Ajusta la query string para usar AND en Supabase/PostgREST
-        url = f"{API_SUPABASE}/Asistencia?select=*"
-        if fecha:
-            url += f"&entrada=gte.{fecha_solo}T00:00:00&entrada=lt.{fecha_solo}T23:59:59"
         response = requests.get(
             url,
             headers=supabase_headers()
