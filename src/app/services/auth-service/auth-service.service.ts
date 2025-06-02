@@ -3,18 +3,19 @@ import { Preferences } from '@capacitor/preferences';
 import { environment } from 'src/environments/environment';
 import * as CryptoJS from 'crypto-js';
 import { User } from 'src/app/models/user';
-import { HttpClient, HttpParams, HttpResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { ApiConfigService } from '../api-config/api-config.service';
+
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthServiceService {
-  private readonly path = 'Usuarios'; // Nombre de la tabla en Supabase
-  private readonly apiUrl = environment.API_URL; // URL base de la API
+  // Cambia la URL base a la de tu API Flask
+  private readonly apiUrl = environment.API_URL; // <-- Cambia esto si tu Flask está en otro host/puerto
 
-  constructor(private readonly http: HttpClient) {} // Inyectamos HttpClient
+  constructor(private readonly http: HttpClient, private readonly api:ApiConfigService,) {}
 
   async isDateExpired(): Promise<boolean> {
     const userData = await this.getDecryptedUserData();
@@ -57,37 +58,20 @@ export class AuthServiceService {
   }
 
   obtener_usuario(username: string): Observable<HttpResponse<User | null>> {
-    const params = new HttpParams().set('select', '*');
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'apiKey': environment.API_KEY_SUPABASE,
-      'Authorization': `Bearer ${environment.API_KEY_SUPABASE}`,
-    });
-
-    return this.http.get<User[]>(`${this.apiUrl}/${this.path}`, { params, observe: 'response', headers }).pipe(
-      map((response) => {
-        console.log(response);
-        const filteredBody = response.body?.find((user) => user.user === username && user.rol != null);
-        return new HttpResponse({
-          body: filteredBody || null, // Devolvemos el usuario encontrado o null
-          headers: response.headers,
-          status: response.status,
-          statusText: response.statusText,
-        });
-      })
-    );
+    // Ahora consulta a tu API Flask
+    return this.http.get<User | null>(`${this.apiUrl}/usuario/${username}`, { observe: 'response' });
   }
 
   registrarUsuario(userData: any): Observable<HttpResponse<any>> {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'apiKey': environment.API_KEY_SUPABASE,
-      'Authorization': `Bearer ${environment.API_KEY_SUPABASE}`,
-    });
+    // Ahora consulta a tu API Flask
+    return this.http.post<any>(`${this.apiUrl}/usuario`, userData, { observe: 'response' });
+  }
 
-    return this.http.post<any>(`${this.apiUrl}/${this.path}`, userData, {
-      observe: 'response',
-      headers,
-    });
+  obtenerTodosUsuarios(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.apiUrl}/usuarios`);
+  }
+
+  cambiarRolUsuario(username: string, nuevoRol: number): Observable<any> {
+    return this.api.patch(`usuario/${username}/rol`, { rol: nuevoRol });
   }
 }

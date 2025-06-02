@@ -1,0 +1,34 @@
+<app-header title="Registro Manual"></app-header>
+
+<ion-content [fullscreen]="true">
+  <form (ngSubmit)="registrarManual()">
+    <ion-item>
+      <ion-label position="floating">Usuario</ion-label>
+      <ion-select [(ngModel)]="usuarioSeleccionado" name="usuarioSeleccionado" required>
+        <ion-select-option *ngFor="let u of usuarios" [value]="u.user">{{ u.user }}</ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">Tipo</ion-label>
+      <ion-select [(ngModel)]="tipoRegistro" name="tipoRegistro" required>
+        <ion-select-option value="ausencia">Ausencia</ion-select-option>
+        <ion-select-option value="asistencia">Asistencia</ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-item *ngIf="tipoRegistro === 'asistencia'">
+      <ion-label position="floating">Estación</ion-label>
+      <ion-select [(ngModel)]="estacionSeleccionada" name="estacionSeleccionada" required>
+        <ion-select-option *ngFor="let est of estaciones" [value]="est">{{ est }}</ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">Observación</ion-label>
+      <ion-textarea [(ngModel)]="observacion" name="observacion" required></ion-textarea>
+    </ion-item>
+    <ion-button expand="block" type="submit"
+      [disabled]="!usuarioSeleccionado || !tipoRegistro || (tipoRegistro === 'asistencia' && !estacionSeleccionada) || !observacion">
+      Registrar Asistencia Manual
+    </ion-button>
+  </form>
+  <ion-toast *ngIf="mensaje" [message]="mensaje" duration="2000"></ion-toast>
+</ion-content>

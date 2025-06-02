@@ -5,6 +5,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import * as CryptoJS from 'crypto-js';
 import { environment } from 'src/environments/environment';
 import { SignUpService } from 'src/app/services/sign-up-service/sign-up-service.service';
+import { ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-sign-up',
@@ -24,7 +25,8 @@ export class SignUpPage {
   
   constructor(
     private readonly signUpService: SignUpService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly toastController: ToastController // <-- agrega esto
   ) {}
 
   async signUp() {
@@ -69,12 +71,10 @@ export class SignUpPage {
       const response = await firstValueFrom(
         this.signUpService.registrarUsuario(newUser)
       );
-
-      // Asumimos que la respuesta es de tipo HttpResponse<any>
       const httpResponse = response as { status: number; body?: any };
 
       if (httpResponse.status === 201) {
-        console.log('Usuario registrado exitosamente:', httpResponse.body);
+        await this.presentToast('Usuario registrado correctamente');
         this.router.navigate(['/auth']);
       } else {
         this.errorMessage = 'Error al registrar el usuario.';
@@ -87,6 +87,16 @@ export class SignUpPage {
       }
       console.error(error);
     }
+  }
+
+  private async presentToast(message: string) {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2000,
+      color: 'success',
+      position: 'top'
+    });
+    await toast.present();
   }
 
   // Validaciones

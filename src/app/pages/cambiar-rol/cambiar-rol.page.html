@@ -1,0 +1,26 @@
+<app-header title="Cambiar Rol Usuario">
+</app-header>
+
+<ion-content [fullscreen]="true">
+  <div style="display: flex; flex-direction: column; align-items: center; margin-top: 40px;">
+    <ion-item style="width: 300px; margin-bottom: 24px;">
+      <ion-label>Usuario</ion-label>
+      <ion-select [(ngModel)]="usuarioSeleccionado" placeholder="Selecciona un usuario">
+        <ion-select-option *ngFor="let usuario of usuarios" [value]="usuario.user">
+          {{ usuario.user }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-item style="width: 300px; margin-bottom: 24px;">
+      <ion-label>Rol</ion-label>
+      <ion-select [(ngModel)]="rolSeleccionado" placeholder="Selecciona un rol">
+        <ion-select-option *ngFor="let rol of roles" [value]="rol.valor">
+          {{ rol.nombre }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-button color="primary" (click)="cambiarRol()" [disabled]="!usuarioSeleccionado || !rolSeleccionado">
+      Cambiar Rol
+    </ion-button>
+  </div>
+</ion-content>

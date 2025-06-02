@@ -1,12 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { AsistenciaService } from 'src/app/services/asistencia/asistencia.service';
 import { AuthServiceService } from 'src/app/services/auth-service/auth-service.service';
 import { Asistencia } from 'src/app/models/asistencia';
-import { ToastController } from '@ionic/angular';
+import { ToastController, NavController } from '@ionic/angular';
 import { EstacionesServiceService } from 'src/app/services/estaciones/estaciones-service.service'; // Importa el servicio
 import * as L from 'leaflet';
 import { Geolocation } from '@capacitor/geolocation';
+import { UbicacionService } from 'src/app/services/ubicacion-service/ubicacion-service.service';
 
 // Corrige la ruta de los iconos de Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -27,20 +28,27 @@ export class HomePage {
   estacion: string = '';
 
   private map: L.Map | undefined;
-  private lat: number | null = null; // NUEVO
-  private lng: number | null = null; // NUEVO
+  private lat: number | null = null;
+  private lng: number | null = null;
+  userRol: number = 0;
+  rolCargado: boolean = false;
 
   constructor(
     private readonly router: Router,
     private readonly asistenciaService: AsistenciaService,
     private readonly authService: AuthServiceService,
     private readonly toastController: ToastController,
-    private readonly estacionesService: EstacionesServiceService // Inyecta el servicio
+    private readonly estacionesService: EstacionesServiceService, // Inyecta el servicio
+    private readonly ubicacionService: UbicacionService,
+    private readonly navCtrl: NavController, // <--- agrega esto
+    private readonly cdr: ChangeDetectorRef
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     this.obtenerEstacionesInfo();
-    this.initMapWithLocation();
+    this.initMapWithFlask();
+    await this.obtenerRolUsuario();
+    console.log('Rol actual en home:', this.userRol, typeof this.userRol);
   }
 
   async mostrarToast(mensaje: string) {
@@ -122,24 +130,8 @@ export class HomePage {
   obtenerEstacionesInfo() {
     this.estacionesService.getBaseUrlInfo().subscribe({
       next: (data) => {
-        if (data && Array.isArray(data.features)) {
-          // Filtra solo las estaciones con estacion: "EXISTENTE" y línea 2, 3 o 6
-          this.estacionesInfo = data.features
-            .filter((f: any) =>
-              f.attributes.estacion === "EXISTENTE" &&
-              (
-                f.attributes.linea === "Linea 2" ||
-                f.attributes.linea === "Linea 3" ||
-                f.attributes.linea === "Linea 6"
-              )
-            )
-            .map((f: any) => ({
-              nombre: f.attributes.nombre,
-              linea: f.attributes.linea
-            }));
-        } else {
-          this.estacionesInfo = [];
-        }
+        // El backend ya entrega las estaciones filtradas
+        this.estacionesInfo = Array.isArray(data) ? data : [];
         console.log('Estaciones cargadas:', this.estacionesInfo);
       },
       error: (err) => {
@@ -148,21 +140,61 @@ export class HomePage {
     });
   }
 
-  async initMapWithLocation() {
-    const coordinates = await Geolocation.getCurrentPosition();
-    this.lat = coordinates.coords.latitude;
-    this.lng = coordinates.coords.longitude;
+  async initMapWithFlask() {
+    try {
+      const coordinates = await Geolocation.getCurrentPosition();
+      const lat = coordinates.coords.latitude;
+      const lng = coordinates.coords.longitude;
 
-    if (!this.map) {
-      this.map = L.map('mini-map').setView([this.lat, this.lng], 16);
+      // Envía la ubicación a Flask y usa la respuesta para centrar el mapa
+      this.ubicacionService.enviarUbicacion(lat, lng).subscribe({
+        next: (ubicacion: { lat: number, lng: number }) => {
+          this.lat = ubicacion.lat;
+          this.lng = ubicacion.lng;
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-      }).addTo(this.map);
+          if (!this.map) {
+            this.map = L.map('mini-map').setView([this.lat!, this.lng!], 16);
 
-      L.marker([this.lat, this.lng]).addTo(this.map)
-        .bindPopup('Tu ubicación actual')
-        .openPopup();
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              attribution: '© OpenStreetMap contributors'
+            }).addTo(this.map);
+
+            L.marker([this.lat!, this.lng!]).addTo(this.map)
+              .bindPopup('Tu ubicación actual')
+              .openPopup();
+          } else {
+            this.map.setView([this.lat!, this.lng!], 16);
+          }
+        },
+        error: (err: any) => {
+          console.error('Error al consultar ubicación en Flask:', err);
+        }
+      });
+    } catch (error) {
+      console.error('No se pudo obtener la ubicación del usuario:', error);
     }
+  }
+
+  async obtenerRolUsuario() {
+    const userData = await this.authService.getDecryptedUserData();
+    // userData debe tener la forma { ...User, expiration }
+    this.userRol = Number(userData?.rol ?? 0); // <-- NO userData.user.rol
+    this.rolCargado = true;
+  }
+
+  irACambiarRol() {
+    this.navCtrl.navigateForward('/cambiar-rol');
+  }
+
+  irAAsistenciaColaboradores() {
+    this.navCtrl.navigateForward('/asistencia-colaboradores');
+  }
+
+  irAReportes() {
+    this.router.navigate(['/reporte-asistencia']);
+  }
+
+  irARegistroManual() {
+    this.router.navigate(['/registro-manual']);
   }
 }
