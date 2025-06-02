@@ -3,18 +3,19 @@ import { Preferences } from '@capacitor/preferences';
 import { environment } from 'src/environments/environment';
 import * as CryptoJS from 'crypto-js';
 import { User } from 'src/app/models/user';
-import { HttpClient, HttpParams, HttpResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { ApiConfigService } from '../api-config/api-config.service';
+
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthServiceService {
   // Cambia la URL base a la de tu API Flask
-  private readonly apiUrl = 'http://localhost:5000/api'; // <-- Cambia esto si tu Flask está en otro host/puerto
+  private readonly apiUrl = environment.API_URL; // <-- Cambia esto si tu Flask está en otro host/puerto
 
-  constructor(private readonly http: HttpClient) {}
+  constructor(private readonly http: HttpClient, private readonly api:ApiConfigService,) {}
 
   async isDateExpired(): Promise<boolean> {
     const userData = await this.getDecryptedUserData();
@@ -70,8 +71,7 @@ export class AuthServiceService {
     return this.http.get<User[]>(`${this.apiUrl}/usuarios`);
   }
 
-  cambiarRolUsuario(username: string, nuevoRol: number) {
-    // Suponiendo que tu API Flask tiene un endpoint PATCH o PUT para esto
-    return this.http.patch(`${this.apiUrl}/usuario/${username}/rol`, { rol: nuevoRol });
+  cambiarRolUsuario(username: string, nuevoRol: number): Observable<any> {
+    return this.api.patch(`usuario/${username}/rol`, { rol: nuevoRol });
   }
 }

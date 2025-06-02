@@ -128,12 +128,13 @@ def cambiar_rol_usuario(username):
     data = request.json
     nuevo_rol = data.get('rol')
     if not nuevo_rol:
-        return jsonify({'error': 'Rol no proporcionado'}), 400
+        return jsonify({'error': 'Falta el campo rol'}), 400
+
     try:
+        print("Cambiando rol de usuario", username, "a", nuevo_rol)
         response = requests.patch(
-            f"{API_SUPABASE}/{SUPABASE_USERS_PATH}",
+            f"{API_SUPABASE}/{SUPABASE_USERS_PATH}?user=eq.{username}",
             headers=supabase_headers(),
-            params={"user": f"eq.{username}"},
             json={"rol": nuevo_rol}
         )
         response.raise_for_status()

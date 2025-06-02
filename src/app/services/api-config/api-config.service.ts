@@ -8,7 +8,7 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root'
 })
 export class ApiConfigService {
-  baseUrl = environment.API_URL; // Debe ser la URL de tu Flask, ej: http://localhost:5000/api
+  baseUrl = environment.API_URL; // Debe ser http://localhost:5000/api
 
   constructor(private http: HttpClient, private toastCtrl: ToastController) { }
 
