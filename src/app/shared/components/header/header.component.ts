@@ -31,5 +31,10 @@ export class HeaderComponent  implements OnInit {
     this.router.navigate(['/auth']);
   }
 
-  
+  mostrarBackButton(): boolean {
+    // Muestra la flecha si NO estás en home y NO en login/sign-up
+    const currentUrl = this.router.url;
+    return !currentUrl.includes('/home') && !currentUrl.includes('/auth') && !currentUrl.includes('/sign-up');
+  }
+
 }
