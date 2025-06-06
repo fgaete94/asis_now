@@ -118,7 +118,7 @@ def recibir_ubicacion():
     lat = data.get('lat')
     lng = data.get('lng')
     if lat is not None and lng is not None:
-        # Aquí podrías guardar la ubicación o hacer lógica adicional
+        # Aquí  guardar la ubicación
         return jsonify({"lat": lat, "lng": lng}), 200
     else:
         return jsonify({"error": "Datos de ubicación incompletos"}), 400
