@@ -40,10 +40,9 @@ describe('CambiarRolPage', () => {
       nombre: 'Test',
       apellido_paterno: 'User',
       apellido_materno: 'Apellido',
-      correo: 'test@example.com',
       rol: 1,
-      user: 'testuser',
-      password: 'testpassword'
+      user: 'test',
+      password: '123456'
     }];
     authServiceSpy.obtenerTodosUsuarios.and.returnValue(of(usuarios));
     component.cargarUsuarios();
