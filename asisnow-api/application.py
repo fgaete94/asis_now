@@ -5,6 +5,7 @@ import requests
 app = Flask(__name__)
 CORS(app)
 
+
 # URLs de las APIs externas
 API_SUPABASE = "https://ypucwjnulpdbifwgyzhn.supabase.co/rest/v1"
 API_KEY_SUPABASE = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlwdWN3am51bHBkYmlmd2d5emhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc4NjY5MDMsImV4cCI6MjA2MzQ0MjkwM30.fBrI7fC2bmGXW3yXmQV-dp6krxCMS1bmOcWqk4Gxod8"

@@ -5,13 +5,21 @@ describe('RegEntradaPage', () => {
   let component: RegEntradaPage;
   let fixture: ComponentFixture<RegEntradaPage>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [RegEntradaPage]
+    }).compileComponents();
+
     fixture = TestBed.createComponent(RegEntradaPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('debería crear el componente', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('debería ejecutar ngOnInit sin errores', () => {
+    expect(() => component.ngOnInit()).not.toThrow();
   });
 });
