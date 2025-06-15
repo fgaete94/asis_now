@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import requests
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -221,6 +222,32 @@ def registrar_asistencia_manual():
         return jsonify(response.json()), response.status_code
     except requests.exceptions.RequestException as e:
         print("Exception:", e)
+        return jsonify({'error': str(e), 'details': response.text if 'response' in locals() else ''}), 500
+
+@app.route('/api/reportes', methods=['POST'])
+def crear_reporte():
+    data = request.json
+    print("Datos recibidos para reporte:", data)
+    reporte = {
+        "usuario": data.get("usuario"),
+        "estacion": data.get("estacion"),
+        "descripcion": data.get("descripcion"),
+        # Si tu tabla requiere fecha, agrega esto:
+        "fecha": datetime.now().isoformat()  # o el formato que requiera tu tabla
+    }
+    try:
+        response = requests.post(
+            f"{API_SUPABASE}/Reportes",
+            headers=supabase_headers(),
+            json=reporte
+        )
+        response.raise_for_status()
+        if not response.text.strip():
+            return jsonify({"message": "Reporte creado correctamente"}), 201
+        return jsonify(response.json()), response.status_code
+    except requests.exceptions.RequestException as e:
+        print("Error al crear reporte:", e)
+        print("Respuesta de Supabase:", response.text if 'response' in locals() else '')
         return jsonify({'error': str(e), 'details': response.text if 'response' in locals() else ''}), 500
 
 if __name__ == "__main__":

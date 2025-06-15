@@ -197,4 +197,8 @@ export class HomePage {
   irARegistroManual() {
     this.router.navigate(['/registro-manual']);
   }
+
+  irAReporteSupervisor() {
+    this.router.navigate(['/reporte-supervisor']);
+  }
 }

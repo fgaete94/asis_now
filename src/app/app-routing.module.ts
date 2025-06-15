@@ -32,6 +32,10 @@ const routes: Routes = [
     path: 'registro-manual',
     loadChildren: () => import('./pages/registro-manual/registro-manual.module').then( m => m.RegistroManualPageModule)
   },
+  {
+    path: 'reporte-supervisor',
+    loadChildren: () => import('./pages/reporte-supervisor/reporte-supervisor.module').then( m => m.ReporteSupervisorPageModule)
+  },
   
 
   {
@@ -39,6 +43,8 @@ const routes: Routes = [
     redirectTo: 'auth',
     pathMatch: 'full'
   },
+ 
+
 
 
 

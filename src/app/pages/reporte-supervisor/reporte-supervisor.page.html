@@ -1,0 +1,26 @@
+<app-header title="Reporte Supervisor"></app-header>
+
+<ion-content [fullscreen]="true">
+  <div style="display: flex; flex-direction: column; align-items: center; margin-top: 30px;">
+    <ion-item style="width: 300px; margin-bottom: 20px;">
+      <ion-label>Estación</ion-label>
+      <ion-select [(ngModel)]="estacionSeleccionada" interface="popover" placeholder="Selecciona una estación">
+        <ion-select-option *ngFor="let est of estaciones" [value]="est.nombre">
+          {{ est.nombre }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-textarea
+      style="width: 300px; min-height: 120px; margin-bottom: 20px;"
+      [(ngModel)]="descripcion"
+      placeholder="Escribe aquí el reporte detallado..."
+      autoGrow="true">
+    </ion-textarea>
+    <ion-button color="success" (click)="enviarReporte()" [disabled]="cargando">
+      Enviar Reporte
+    </ion-button>
+    <ion-button color="medium" (click)="cancelar()" [disabled]="cargando">
+      Cancelar
+    </ion-button>
+  </div>
+</ion-content>

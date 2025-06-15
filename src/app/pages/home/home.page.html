@@ -53,5 +53,13 @@
       (click)="irARegistroManual()">
       Registro Manual
     </ion-button>
+    <ion-button 
+      *ngIf="rolCargado && (userRol == 2 || userRol == 3)"
+      color="danger"
+      shape="round"
+      style="width: 200px; height: 30px; font-weight: bold; font-size: 1.2rem; margin-bottom: 10px;"
+      (click)="irAReporteSupervisor()">
+      SOS
+    </ion-button>
   </div>
 </ion-content>
