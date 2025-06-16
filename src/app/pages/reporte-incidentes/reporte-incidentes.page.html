@@ -1,0 +1,27 @@
+<app-header title="Reporte de Incidentes"></app-header>
+<ion-content [fullscreen]="true">
+  <div style="padding: 16px;">
+    <ion-spinner *ngIf="cargando"></ion-spinner>
+    <table *ngIf="!cargando && reportes.length" style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr>
+          <th style="border-bottom: 1px solid #ccc; padding: 8px;">Usuario</th>
+          <th style="border-bottom: 1px solid #ccc; padding: 8px;">Fecha</th>
+          <th style="border-bottom: 1px solid #ccc; padding: 8px;">Estación</th>
+          <th style="border-bottom: 1px solid #ccc; padding: 8px;">Descripción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let rep of reportes">
+          <td style="padding: 8px;">{{ rep.usuario }}</td>
+          <td style="padding: 8px;">{{ rep.fecha | date:'short' }}</td>
+          <td style="padding: 8px;">{{ rep.estacion }}</td>
+          <td style="padding: 8px;">{{ rep.descripcion }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!cargando && !reportes.length" style="text-align:center; margin-top: 20px;">
+      No hay reportes de incidentes.
+    </div>
+  </div>
+</ion-content>

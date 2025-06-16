@@ -201,4 +201,8 @@ export class HomePage {
   irAReporteSupervisor() {
     this.router.navigate(['/reporte-supervisor']);
   }
+
+  irAReporteIncidentes() {
+    this.router.navigate(['/reporte-incidentes']);
+  }
 }

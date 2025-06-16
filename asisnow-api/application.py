@@ -250,5 +250,24 @@ def crear_reporte():
         print("Respuesta de Supabase:", response.text if 'response' in locals() else '')
         return jsonify({'error': str(e), 'details': response.text if 'response' in locals() else ''}), 500
 
+@app.route('/api/reportes', methods=['GET'])
+def obtener_reportes():
+    # Ordena por fecha descendente (más recientes primero)
+    params = {
+        "select": "*",
+        "order": "fecha.desc"
+    }
+    try:
+        response = requests.get(
+            f"{API_SUPABASE}/Reportes",
+            headers=supabase_headers(),
+            params=params
+        )
+        response.raise_for_status()
+        return jsonify(response.json()), 200
+    except requests.exceptions.RequestException as e:
+        print("ERROR AL OBTENER REPORTES:", e)
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == "__main__":
     app.run(debug=True)

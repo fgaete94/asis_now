@@ -13,4 +13,9 @@ export class ReportesService {
   enviarReporte(reporte: { usuario: string; estacion: string, descripcion: string }): Observable<any> {
     return this.http.post(this.apiUrl, reporte);
   }
+
+  // GET para obtener todos los reportes ordenados por fecha descendente
+  obtenerReportes(): Observable<any[]> {
+    return this.http.get<any[]>(this.apiUrl);
+  }
 }
