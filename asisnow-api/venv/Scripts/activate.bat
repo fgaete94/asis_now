@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=C:\Users\pipeg\Desktop\Ing informatica\5to semestre\app_asistencia\asis_now\asisnow-api\venv
+set VIRTUAL_ENV=C:\Users\jcifu\OneDrive\Documentos\GitHub\asis_now\asisnow-api\venv
 
 if not defined PROMPT set PROMPT=$P$G
 

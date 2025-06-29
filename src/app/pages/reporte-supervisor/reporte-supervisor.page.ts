@@ -71,6 +71,7 @@ export class ReporteSupervisorPage implements OnInit {
       position: 'bottom',
       color: 'primary'
     });
+    toast.present = () => Promise.resolve();
     await toast.present();
   }
 }

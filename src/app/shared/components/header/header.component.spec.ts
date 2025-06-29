@@ -7,14 +7,12 @@ describe('HeaderComponent', () => {
   let component: HeaderComponent;
   let fixture: ComponentFixture<HeaderComponent>;
   let routerSpy: jasmine.SpyObj<Router>;
-
-  let currentUrl = '/home';
+  let currentUrl: string;
 
   beforeEach(async () => {
+    currentUrl = '/home';
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    Object.defineProperty(routerSpy, 'url', {
-      get: () => currentUrl
-    });
+    Object.defineProperty(routerSpy, 'url', { get: () => currentUrl });
 
     await TestBed.configureTestingModule({
       declarations: [HeaderComponent],
@@ -27,28 +25,28 @@ describe('HeaderComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
+
   it('debería identificar home page correctamente', () => {
     currentUrl = '/home';
+    fixture.detectChanges();
     expect(component.isHomePage()).toBeTrue();
+
     currentUrl = '/auth';
+    fixture.detectChanges();
     expect(component.isHomePage()).toBeFalse();
+
     currentUrl = '/sign-up';
+    fixture.detectChanges();
     expect(component.isHomePage()).toBeFalse();
+
     currentUrl = '/otra-pagina';
+    fixture.detectChanges();
     expect(component.isHomePage()).toBeTrue();
   });
-  
 
   it('debería limpiar userData y navegar a /auth al hacer logout', async () => {
-    // Arrange
-    const fixture = TestBed.createComponent(HeaderComponent);
-    const component = fixture.componentInstance;
     spyOn(Preferences, 'remove').and.returnValue(Promise.resolve());
-
-    // Act
     await component.logout();
-
-    // Assert
     expect(Preferences.remove).toHaveBeenCalledWith({ key: 'userData' });
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/auth']);
   });

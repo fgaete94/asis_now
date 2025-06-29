@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReporteIncidentesPage } from './reporte-incidentes.page';
 import { ReportesService } from 'src/app/services/reportes/reportes.service';
 import { of, throwError } from 'rxjs';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 describe('ReporteIncidentesPage', () => {
   let component: ReporteIncidentesPage;
@@ -15,12 +16,14 @@ describe('ReporteIncidentesPage', () => {
       declarations: [ReporteIncidentesPage],
       providers: [
         { provide: ReportesService, useValue: reportesServiceSpy }
-      ]
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
+  });
 
+  beforeEach(() => {
     fixture = TestBed.createComponent(ReporteIncidentesPage);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('debería crear el componente', () => {

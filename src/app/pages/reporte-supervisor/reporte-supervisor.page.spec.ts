@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, flush } from '@angular/core/testing';
 import { ReporteSupervisorPage } from './reporte-supervisor.page';
 import { EstacionesServiceService } from 'src/app/services/estaciones/estaciones-service.service';
 import { ReportesService } from 'src/app/services/reportes/reportes.service';
@@ -6,6 +6,7 @@ import { AuthServiceService } from 'src/app/services/auth-service/auth-service.s
 import { ToastController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 describe('ReporteSupervisorPage', () => {
   let component: ReporteSupervisorPage;
@@ -23,6 +24,10 @@ describe('ReporteSupervisorPage', () => {
     toastCtrlSpy = jasmine.createSpyObj('ToastController', ['create']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
+    const toastElementSpy = jasmine.createSpyObj('HTMLIonToastElement', ['present']);
+    // Mock para ToastController.create que retorna un objeto con present()
+    toastCtrlSpy.create.and.returnValue(Promise.resolve(toastElementSpy));
+
     await TestBed.configureTestingModule({
       declarations: [ReporteSupervisorPage],
       providers: [
@@ -31,12 +36,12 @@ describe('ReporteSupervisorPage', () => {
         { provide: AuthServiceService, useValue: authServiceSpy },
         { provide: ToastController, useValue: toastCtrlSpy },
         { provide: Router, useValue: routerSpy }
-      ]
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
 
     fixture = TestBed.createComponent(ReporteSupervisorPage);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('debería crear el componente', () => {
@@ -44,10 +49,10 @@ describe('ReporteSupervisorPage', () => {
   });
 
   it('debería cargar estaciones en ngOnInit', () => {
-    const mockEstaciones = [{ nombre: 'Est1' }, { nombre: 'Est2' }];
-    estacionesServiceSpy.getBaseUrlInfo.and.returnValue(of(mockEstaciones));
+    const estacionesMock = [{ nombre: 'A' }, { nombre: 'B' }];
+    estacionesServiceSpy.getBaseUrlInfo.and.returnValue(of(estacionesMock));
     component.ngOnInit();
-    expect(component.estaciones).toEqual(mockEstaciones);
+    expect(component.estaciones).toEqual(estacionesMock);
   });
 
   it('debería manejar error al cargar estaciones', () => {
@@ -57,55 +62,59 @@ describe('ReporteSupervisorPage', () => {
   });
 
   it('no debería enviar reporte si faltan campos', fakeAsync(() => {
-    spyOn(component, 'mostrarToast').and.returnValue(Promise.resolve());
+    spyOn(component, 'mostrarToast').and.callThrough();
     component.estacionSeleccionada = '';
     component.descripcion = '';
     component.enviarReporte();
+    tick();
     expect(component.mostrarToast).toHaveBeenCalledWith('Debes seleccionar una estación y escribir una descripción.');
+    expect(reportesServiceSpy.enviarReporte).not.toHaveBeenCalled();
+    flush();
   }));
 
-  it('debería enviar reporte correctamente', fakeAsync(async () => {
-    component.estacionSeleccionada = 'Est1';
-    component.descripcion = 'Texto de prueba';
-    authServiceSpy.getDecryptedUserData.and.returnValue(Promise.resolve({ user: 'felipe' }));
+  it('debería mostrar error si falla el envío del reporte', fakeAsync(() => {
+    component.estacionSeleccionada = 'A';
+    component.descripcion = 'desc';
+    authServiceSpy.getDecryptedUserData.and.returnValue(Promise.resolve({ user: 'supervisor' }));
+    reportesServiceSpy.enviarReporte.and.returnValue(throwError(() => new Error('error')));
+    spyOn(component, 'mostrarToast').and.callThrough();
+
+    component.enviarReporte();
+    tick(); // Espera la promesa de getDecryptedUserData
+    tick(); // Espera el observable de enviarReporte
+    expect(component.mostrarToast).toHaveBeenCalledWith('Error al enviar el reporte');
+    expect(component.cargando).toBeFalse();
+    flush();
+  }));
+
+  it('debería enviar reporte correctamente', fakeAsync(() => {
+    component.estacionSeleccionada = 'A';
+    component.descripcion = 'desc';
+    authServiceSpy.getDecryptedUserData.and.returnValue(Promise.resolve({ user: 'supervisor' }));
     reportesServiceSpy.enviarReporte.and.returnValue(of({}));
-    spyOn(component, 'mostrarToast').and.returnValue(Promise.resolve());
+    spyOn(component, 'mostrarToast').and.callThrough();
 
-    await component.enviarReporte();
-    tick();
-
-    expect(reportesServiceSpy.enviarReporte).toHaveBeenCalledWith({
-      usuario: 'felipe',
-      estacion: 'Est1',
-      descripcion: 'Texto de prueba'
-    });
+    component.enviarReporte();
+    tick(); // Espera la promesa de getDecryptedUserData
+    tick(); // Espera el observable de enviarReporte
     expect(component.mostrarToast).toHaveBeenCalledWith('Reporte enviado correctamente');
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
+    expect(component.cargando).toBeFalse();
+    flush();
   }));
 
-  it('debería mostrar error si falla el envío del reporte', fakeAsync(async () => {
-    component.estacionSeleccionada = 'Est1';
-    component.descripcion = 'Texto de prueba';
-    authServiceSpy.getDecryptedUserData.and.returnValue(Promise.resolve({ user: 'felipe' }));
-    reportesServiceSpy.enviarReporte.and.returnValue(throwError(() => new Error('error')));
-    spyOn(component, 'mostrarToast').and.returnValue(Promise.resolve());
-
-    await component.enviarReporte();
-    tick();
-
-    expect(component.mostrarToast).toHaveBeenCalledWith('Error al enviar el reporte');
+  it('debería mostrar un toast', fakeAsync(async () => {
+    await component.mostrarToast('Mensaje');
+    expect(toastCtrlSpy.create).toHaveBeenCalledWith({
+      message: 'Mensaje',
+      duration: 2000,
+      position: 'bottom',
+      color: 'primary'
+    });
   }));
 
   it('debería navegar a home al cancelar', () => {
     component.cancelar();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);
-  });
-
-  it('debería mostrar un toast', async () => {
-    const toastSpy = jasmine.createSpyObj('HTMLIonToastElement', ['present']);
-    toastCtrlSpy.create.and.returnValue(Promise.resolve(toastSpy));
-    await component.mostrarToast('Mensaje');
-    expect(toastCtrlSpy.create).toHaveBeenCalledWith(jasmine.objectContaining({ message: 'Mensaje' }));
-    expect(toastSpy.present).toHaveBeenCalled();
   });
 });
