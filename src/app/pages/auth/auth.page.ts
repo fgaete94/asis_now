@@ -64,38 +64,34 @@ export class AuthPage implements OnInit {
 
 async login(username: string, password: string) {
   try {
-    // Usar firstValueFrom para convertir el observable en una promesa
-    const user = await firstValueFrom(this._authService.obtener_usuario(username));
-    this.userInfo = user?.body || null;
+    // Solo envía el usuario y contraseña en texto plano al endpoint /api/login
+    const response = await this.httpClient.post<User>(
+      'http://localhost:5000/api/login',
+      { user: username, password }
+    ).toPromise();
 
-    if (this.userInfo && this.userInfo.user === username) {
-      // Desencriptar la contraseña almacenada para compararla
-      const bytes = CryptoJS.AES.decrypt(this.userInfo.password, environment.SECRETKEY);
-      const decryptedPassword = bytes.toString(CryptoJS.enc.Utf8);
+    if (response) {
+      // Login exitoso, guarda datos de usuario, etc.
+      this.userInfo = response;
 
-      if (decryptedPassword === password) {
-        // Verifica que el rol esté presente antes de cifrar
-        console.log("Rol del usuario:", this.userInfo.rol);
-        if (!this.userInfo.rol) {
-          this.errorMessage = "Error: El rol no está definido en la información del usuario";
-          console.error(this.errorMessage);
-          return;
-        }
-
-        const expiration = Date.now() + this.sessionDuration;
-        const userData = { ...this.userInfo, expiration };
-        const encryptedData = CryptoJS.AES.encrypt(JSON.stringify(userData), environment.SECRETKEY).toString();
-
-        await Preferences.set({
-          key: 'userData',
-          value: encryptedData,
-        });
-
-        this.router.navigate(['/home']);
-      } else {
-        this.errorMessage = "Usuario no existente o contraseña incorrecta";
+      // Verifica que el rol esté presente antes de cifrar
+      console.log("Rol del usuario:", this.userInfo.rol);
+      if (!this.userInfo.rol) {
+        this.errorMessage = "Error: El rol no está definido en la información del usuario";
         console.error(this.errorMessage);
+        return;
       }
+
+      const expiration = Date.now() + this.sessionDuration;
+      const userData = { ...this.userInfo, expiration };
+      const encryptedData = CryptoJS.AES.encrypt(JSON.stringify(userData), environment.SECRETKEY).toString();
+
+      await Preferences.set({
+        key: 'userData',
+        value: encryptedData,
+      });
+
+      this.router.navigate(['/home']);
     } else {
       this.errorMessage = "Usuario no existente o contraseña incorrecta";
       console.error(this.errorMessage);

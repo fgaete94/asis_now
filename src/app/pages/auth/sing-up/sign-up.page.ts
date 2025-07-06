@@ -2,8 +2,6 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
-import * as CryptoJS from 'crypto-js';
-import { environment } from 'src/environments/environment';
 import { SignUpService } from 'src/app/services/sign-up-service/sign-up-service.service';
 import { ToastController } from '@ionic/angular';
 
@@ -26,7 +24,7 @@ export class SignUpPage {
   constructor(
     private readonly signUpService: SignUpService,
     private readonly router: Router,
-    private readonly toastController: ToastController // <-- agrega esto
+    private readonly toastController: ToastController
   ) {}
 
   async signUp() {
@@ -55,16 +53,14 @@ export class SignUpPage {
       return;
     }
 
-    // Encriptar la contraseña antes de enviarla
-    const encryptedPassword = CryptoJS.AES.encrypt(this.password, environment.SECRETKEY).toString();
-
+    // Ya no se encripta la contraseña aquí, se envía en texto plano
     const newUser = {
       nombre: this.nombre,
       apellido_paterno: this.apellido_paterno,
       apellido_materno: this.apellido_materno,
-      user: this.user, // Asignar el nombre de usuario
-      password: encryptedPassword,
-      rol: 1, // Solo enviamos el ID del rol
+      user: this.user,
+      password: this.password,
+      rol: 1,
     };
 
     try {

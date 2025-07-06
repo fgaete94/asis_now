@@ -149,5 +149,8 @@
     "@ionic/angular-toolkit:page": {
       "styleext": "scss"
     }
-  }
+  },
+  "allowedCommonJsDependencies": [
+    "leaflet"
+  ]
 }

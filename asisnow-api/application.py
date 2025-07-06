@@ -2,6 +2,9 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import requests
 from datetime import datetime
+from Crypto.Cipher import AES
+import base64
+import hashlib
 
 app = Flask(__name__)
 CORS(app)
@@ -11,6 +14,7 @@ CORS(app)
 API_SUPABASE = "https://ypucwjnulpdbifwgyzhn.supabase.co/rest/v1"
 API_KEY_SUPABASE = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlwdWN3am51bHBkYmlmd2d5emhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc4NjY5MDMsImV4cCI6MjA2MzQ0MjkwM30.fBrI7fC2bmGXW3yXmQV-dp6krxCMS1bmOcWqk4Gxod8"
 API_OUC = "https://services9.arcgis.com/kKJR3Qt68ohAWuet/arcgis/rest/services/Estaciones_actuales_y_proyectadas_de_Metro_de_Santiago/FeatureServer/0/query?where=1%3D1&outFields=nombre,linea,estacion&outSR=4326&f=json"
+SECRETKEY = "eW>9~NpjI6d~1((BO@rr7>arkMz):F8~ZNgI" 
 
 SUPABASE_USERS_PATH = "Usuarios"
 
@@ -46,10 +50,33 @@ def obtener_usuario(username):
     except requests.exceptions.RequestException as e:
         return jsonify({'error': str(e)}), 500
 
+# Función para encriptar contraseñas
+def encrypt_password(password, secret_key):
+    # Asegura que la clave tenga 32 bytes
+    key = hashlib.sha256(secret_key.encode()).digest()
+    cipher = AES.new(key, AES.MODE_EAX)
+    nonce = cipher.nonce
+    ciphertext, tag = cipher.encrypt_and_digest(password.encode())
+    # Guardamos nonce + ciphertext en base64
+    return base64.b64encode(nonce + ciphertext).decode()
+
+# Función para desencriptar contraseñas
+def decrypt_password(encrypted_password, secret_key):
+    key = hashlib.sha256(secret_key.encode()).digest()
+    data = base64.b64decode(encrypted_password)
+    nonce = data[:16]
+    ciphertext = data[16:]
+    cipher = AES.new(key, AES.MODE_EAX, nonce=nonce)
+    decrypted = cipher.decrypt(ciphertext)
+    return decrypted.decode()
+
 # Registrar usuario (POST)
 @app.route('/api/usuario', methods=['POST'])
 def registrar_usuario():
     user_data = request.json
+    # Encriptar la contraseña aquí
+    if "password" in user_data:
+        user_data["password"] = encrypt_password(user_data["password"], SECRETKEY)
     try:
         response = requests.post(
             f"{API_SUPABASE}/{SUPABASE_USERS_PATH}",
@@ -286,6 +313,48 @@ def asistencias_turno_actual():
         print("ERROR EN SUPABASE:", e)
         print("RESPUESTA:", getattr(e.response, 'text', 'Sin respuesta'))
         return jsonify({'error': str(e), 'details': getattr(e.response, 'text', 'Sin respuesta')}), 500
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.json
+    username = data.get('user')
+    password = data.get('password')
+    if not username or not password:
+        return jsonify({'error': 'Faltan datos'}), 400
+
+    params = {
+        "select": "*",
+        "user": f"eq.{username}"
+    }
+    try:
+        response = requests.get(
+            f"{API_SUPABASE}/{SUPABASE_USERS_PATH}",
+            headers=supabase_headers(),
+            params=params
+        )
+        response.raise_for_status()
+        users = response.json()
+        if not users:
+            return jsonify({'error': 'Usuario no encontrado'}), 401
+
+        user = users[0]
+        encrypted_password = user.get("password")
+        if not encrypted_password:
+            return jsonify({'error': 'Contraseña no encontrada'}), 401
+
+        try:
+            decrypted_password = decrypt_password(encrypted_password, SECRETKEY)
+        except Exception as e:
+            return jsonify({'error': 'Error al desencriptar la contraseña'}), 500
+
+        if decrypted_password == password:
+            # No envíes la contraseña de vuelta
+            user.pop("password", None)
+            return jsonify(user), 200
+        else:
+            return jsonify({'error': 'Usuario o contraseña incorrectos'}), 401
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
