@@ -1,0 +1,33 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Resumen Final de Turno</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-spinner *ngIf="cargando"></ion-spinner>
+  <table *ngIf="!cargando && asistencias.length" class="table" style="width: 100%; margin-top: 20px;">
+    <thead>
+      <tr>
+        <th>Usuario</th>
+        <th>Hora Entrada</th>
+        <th>Hora Salida</th>
+        <th>Estación</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let a of asistencias">
+        <td>{{ a.usuario }}</td>
+        <td>{{ a.entrada ? (a.entrada | date:'short') : '' }}</td>
+        <td>{{ a.salida ? (a.salida | date:'short') : '' }}</td>
+        <td>{{ a.estacion }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <ion-button expand="block" color="primary" (click)="generarPDF()" [disabled]="!asistencias.length">
+    Generar PDF
+  </ion-button>
+  <ion-button color="medium" (click)="cancelar()" [disabled]="cargando">
+    Volver
+  </ion-button>
+</ion-content>

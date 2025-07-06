@@ -62,6 +62,10 @@ export class HomePage {
   }
 
   async registrarEntrada() {
+    if (!this.estacion) {
+      this.mostrarToast('Debes seleccionar una estación');
+      return;
+    }
     const userData = await this.authService.getDecryptedUserData();
     if (!userData || !userData.user) return;
 
@@ -92,6 +96,10 @@ export class HomePage {
   }
 
   async registrarSalida() {
+    if (!this.estacion) {
+      this.mostrarToast('Debes seleccionar una estación');
+      return;
+    }
     const userData = await this.authService.getDecryptedUserData();
     if (!userData || !userData.user) {
       return;
@@ -204,5 +212,13 @@ export class HomePage {
 
   irAReporteIncidentes() {
     this.router.navigate(['/reporte-incidentes']);
+  }
+
+  async onSalidaClick() {
+    if (this.userRol === 2 || this.userRol === 3) {
+      this.router.navigate(['/reporte-final-turno']);
+    } else {
+      await this.registrarSalida();
+    }
   }
 }

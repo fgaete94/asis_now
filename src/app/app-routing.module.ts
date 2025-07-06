@@ -40,6 +40,10 @@ const routes: Routes = [
     path: 'reporte-incidentes',
     loadChildren: () => import('./pages/reporte-incidentes/reporte-incidentes.module').then( m => m.ReporteIncidentesPageModule)
   },
+    {
+    path: 'reporte-final-turno',
+    loadChildren: () => import('./pages/reporte-final-turno/reporte-final-turno.module').then( m => m.ReporteFinalTurnoPageModule)
+  },
 
   
 
@@ -48,6 +52,8 @@ const routes: Routes = [
     redirectTo: 'auth',
     pathMatch: 'full'
   },
+
+
 
  
 

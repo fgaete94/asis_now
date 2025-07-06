@@ -269,5 +269,23 @@ def obtener_reportes():
         print("ERROR AL OBTENER REPORTES:", e)
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/asistencias/turno-actual', methods=['GET'])
+def asistencias_turno_actual():
+    # Filtra por fecha de hoy (puedes ajustar el filtro según tu lógica de turnos)
+    hoy = datetime.now().strftime('%Y-%m-%d')
+    url = f"{API_SUPABASE}/Asistencia?select=usuario,entrada,salida,estacion&entrada=gte.{hoy}T00:00:00&entrada=lt.{hoy}T23:59:59"
+    try:
+        response = requests.get(
+            url,
+            headers=supabase_headers()
+        )
+        response.raise_for_status()
+        asistencias = response.json()
+        return jsonify(asistencias), 200
+    except requests.exceptions.RequestException as e:
+        print("ERROR EN SUPABASE:", e)
+        print("RESPUESTA:", getattr(e.response, 'text', 'Sin respuesta'))
+        return jsonify({'error': str(e), 'details': getattr(e.response, 'text', 'Sin respuesta')}), 500
+
 if __name__ == "__main__":
     app.run(debug=True)
