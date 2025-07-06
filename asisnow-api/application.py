@@ -232,8 +232,8 @@ def crear_reporte():
         "usuario": data.get("usuario"),
         "estacion": data.get("estacion"),
         "descripcion": data.get("descripcion"),
-        # Si tu tabla requiere fecha, agrega esto:
-        "fecha": datetime.now().isoformat()  # o el formato que requiera tu tabla
+        "fecha": datetime.now().isoformat(),
+        "imagenUrl": data.get("imagenUrl")  
     }
     try:
         response = requests.post(

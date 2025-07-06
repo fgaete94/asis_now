@@ -16,6 +16,8 @@
       placeholder="Escribe aquí el reporte detallado..."
       autoGrow="true">
     </ion-textarea>
+    <input type="file" accept="image/*" (change)="onFileSelected($event)" style="margin-bottom: 10px;" />
+    <img *ngIf="previewUrl" [src]="previewUrl" style="max-width: 200px; margin-bottom: 10px;" />
     <ion-button color="success" (click)="enviarReporte()" [disabled]="cargando">
       Enviar Reporte
     </ion-button>

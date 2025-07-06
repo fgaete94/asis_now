@@ -4,4 +4,5 @@ export interface Reportes {
     fecha?: Date | null;
     descripcion?: string;
     estacion?: string;
+    imagenUrl?: string; // URL de la imagen del reporte
   }

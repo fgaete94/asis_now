@@ -10,7 +10,7 @@ export class ReportesService {
 
   constructor(private http: HttpClient) {}
 
-  enviarReporte(reporte: { usuario: string; estacion: string, descripcion: string }): Observable<any> {
+  enviarReporte(reporte: { usuario: string; estacion: string, descripcion: string, imagenUrl: string }): Observable<any> {
     return this.http.post(this.apiUrl, reporte);
   }
 
