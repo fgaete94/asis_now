@@ -40,10 +40,17 @@ const routes: Routes = [
     path: 'reporte-incidentes',
     loadChildren: () => import('./pages/reporte-incidentes/reporte-incidentes.module').then( m => m.ReporteIncidentesPageModule)
   },
-    {
+  {
     path: 'reporte-final-turno',
     loadChildren: () => import('./pages/reporte-final-turno/reporte-final-turno.module').then( m => m.ReporteFinalTurnoPageModule)
   },
+
+
+  {
+    path: 'change-password',
+    loadChildren: () => import('./pages/auth/change-password/change-password.module').then(m => m.ChangePasswordPageModule)
+  },
+
 
   
 

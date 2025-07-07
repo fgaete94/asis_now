@@ -107,6 +107,10 @@ async login(username: string, password: string) {
     this.router.navigate(['/sign-up']);
   }
 
+  goToChangePassword() {
+    this.router.navigate(['/change-password']);
+  }
+
   togglePasswordVisibility() {
     if (this.passwordType === 'password') {
       this.passwordType = 'text';
@@ -114,6 +118,36 @@ async login(username: string, password: string) {
     } else {
       this.passwordType = 'password';
       this.passwordIcon = 'eye-off';
+    }
+  }
+
+  async openChangePasswordModal() {
+    const username = this.user;
+    if (!username) {
+      this.errorMessage = "Ingrese su usuario para cambiar la contraseña.";
+      return;
+    }
+    const newPassword = prompt("Ingrese su nueva contraseña:");
+    if (!newPassword || newPassword.length < 6) {
+      this.errorMessage = "La nueva contraseña debe tener al menos 6 caracteres.";
+      return;
+    }
+
+    try {
+      const response = await this.httpClient.patch(
+        'http://localhost:5000/api/usuario/' + encodeURIComponent(username) + '/password',
+        { password: newPassword }
+      ).toPromise();
+
+      if (response && (response as any).message) {
+        this.errorMessage = '';
+        alert("Contraseña actualizada correctamente.");
+      } else {
+        this.errorMessage = "No se pudo actualizar la contraseña.";
+      }
+    } catch (error) {
+      this.errorMessage = "Error al actualizar la contraseña.";
+      console.error(error);
     }
   }
 

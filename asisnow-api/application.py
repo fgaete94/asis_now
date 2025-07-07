@@ -356,5 +356,29 @@ def login():
     except requests.exceptions.RequestException as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/usuario/<username>/password', methods=['PATCH'])
+def cambiar_password_usuario(username):
+    data = request.json
+    nueva_password = data.get('password')
+    if not nueva_password:
+        return jsonify({'error': 'Falta la nueva contraseña'}), 400
+
+    nueva_password_encrypted = encrypt_password(nueva_password, SECRETKEY)
+    update_at = datetime.now().isoformat()
+
+    try:
+        response = requests.patch(
+            f"{API_SUPABASE}/{SUPABASE_USERS_PATH}?user=eq.{username}",
+            headers=supabase_headers(),
+            json={
+                "password": nueva_password_encrypted,
+                "update_at": update_at
+            }
+        )
+        response.raise_for_status()
+        return jsonify({"message": "Contraseña actualizada"}), 200
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == "__main__":
     app.run(debug=True)
