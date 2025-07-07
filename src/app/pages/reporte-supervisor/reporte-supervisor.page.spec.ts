@@ -77,7 +77,8 @@ describe('ReporteSupervisorPage', () => {
     expect(reportesServiceSpy.enviarReporte).toHaveBeenCalledWith({
       usuario: 'felipe',
       estacion: 'Est1',
-      descripcion: 'Texto de prueba'
+      descripcion: 'Texto de prueba',
+      imagenUrl: '',
     });
     expect(component.mostrarToast).toHaveBeenCalledWith('Reporte enviado correctamente');
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/home']);

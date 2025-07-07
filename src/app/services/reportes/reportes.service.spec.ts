@@ -24,7 +24,7 @@ describe('ReportesService', () => {
   });
 
   it('debería enviar un reporte correctamente', () => {
-    const reporte = { usuario: 'felipe', estacion: 'TOESCA', descripcion: 'prueba' };
+    const reporte = { usuario: 'felipe', estacion: 'TOESCA', descripcion: 'prueba', imagenUrl: '' };
     service.enviarReporte(reporte).subscribe(resp => {
       expect(resp).toEqual({ message: 'Reporte recibido' });
     });
