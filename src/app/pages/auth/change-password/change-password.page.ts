@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-change-password',
@@ -16,7 +17,8 @@ export class ChangePasswordPage {
 
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private toastController: ToastController
   ) {}
 
   async changePassword() {
@@ -43,7 +45,7 @@ export class ChangePasswordPage {
       ).toPromise();
 
       if (response && response.message) {
-        alert('Contraseña actualizada correctamente.');
+        await this.presentToast('Contraseña actualizada correctamente.');
         this.router.navigate(['/auth']);
       } else {
         this.errorMessage = 'No se pudo actualizar la contraseña.';
@@ -52,6 +54,16 @@ export class ChangePasswordPage {
       this.errorMessage = 'Error al actualizar la contraseña.';
       console.error(error);
     }
+  }
+
+  async presentToast(message: string) {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2000,
+      color: 'success',
+      position: 'top'
+    });
+    await toast.present();
   }
 
   goToLogin() {
